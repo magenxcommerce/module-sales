@@ -10,7 +10,6 @@ use Magento\Sales\Model\Order;
 
 /**
  * Class NotifySender
- * phpcs:disable Magento2.Classes.AbstractApi
  * @api
  * @since 100.0.2
  */
@@ -36,7 +35,7 @@ abstract class NotifySender extends Sender
 
         if ($notify) {
             $sender->send();
-        } elseif ($this->identityContainer->getCopyMethod() === 'copy') {
+        } else {
             // Email copies are sent as separated emails if their copy method
             // is 'copy' or a customer should not be notified
             $sender->sendCopyTo();

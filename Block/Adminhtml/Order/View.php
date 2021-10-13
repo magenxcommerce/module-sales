@@ -1,5 +1,7 @@
 <?php
 /**
+ * @category    Magento
+ * @package     Magento_Sales
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */

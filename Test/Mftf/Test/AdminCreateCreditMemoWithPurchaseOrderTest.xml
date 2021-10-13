@@ -61,7 +61,8 @@
         <fillField selector="{{AdminOrderFormPaymentSection.fieldPurchaseOrderNumber}}" userInput="123456" stepKey="fillPONumber"/>
         <click selector="{{AdminOrderFormPaymentSection.blockPayment}}" stepKey="unfocus"/>
         <waitForPageLoad stepKey="waitForJavascriptToFinish"/>
-        <actionGroup ref="AdminOrderClickSubmitOrderActionGroup" stepKey="submitOrder" />
+        <click selector="{{AdminOrderFormActionSection.submitOrder}}" stepKey="submitOrder"/>
+        <waitForPageLoad stepKey="waitForSubmitOrderPage"/>
         <see stepKey="seeSuccessMessageForOrder" selector="{{AdminIndexManagementSection.successMessage}}" userInput="You created the order."/>
 
         <!-- Create Invoice -->
@@ -115,11 +116,13 @@
         </actionGroup>
 
         <!-- Assert refunded Grand Total on frontend -->
-        <actionGroup ref="StorefrontOpenMyAccountPageActionGroup" stepKey="onAccountPage"/>
+        <amOnPage url="{{StorefrontCustomerDashboardPage.url}}" stepKey="onAccountPage"/>
+        <waitForPageLoad stepKey="waitForPage"/>
         <scrollTo selector="{{StorefrontCustomerResentOrdersSection.blockResentOrders}}" stepKey="scrollToResent"/>
         <click selector="{{StorefrontCustomerResentOrdersSection.viewOrder({$grabOrderId})}}" stepKey="clickOnOrder"/>
         <waitForPageLoad stepKey="waitForViewOrder"/>
-        <actionGroup ref="StorefrontClickRefundTabCustomerOrderViewActionGroup" stepKey="clickRefund"/>
+        <click selector="{{StorefrontCustomerOrderSection.tabRefund}}" stepKey="clickRefund"/>
+        <waitForPageLoad stepKey="waitRefundsLoad"/>
         <scrollTo selector="{{StorefrontCustomerOrderSection.grandTotalRefund}}" stepKey="scrollToGrandTotal"/>
         <see selector="{{StorefrontCustomerOrderSection.grandTotalRefund}}" userInput="555.00" stepKey="seeGrandTotal"/>
     </test>

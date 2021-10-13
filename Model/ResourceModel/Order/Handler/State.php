@@ -9,7 +9,7 @@ namespace Magento\Sales\Model\ResourceModel\Order\Handler;
 use Magento\Sales\Model\Order;
 
 /**
- * Checking order status and adjusting order status before saving
+ * Class State
  */
 class State
 {
@@ -34,7 +34,6 @@ class State
             if (in_array($currentState, [Order::STATE_PROCESSING, Order::STATE_COMPLETE])
                 && !$order->canCreditmemo()
                 && !$order->canShip()
-                && $order->getIsNotVirtual()
             ) {
                 $order->setState(Order::STATE_CLOSED)
                     ->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));

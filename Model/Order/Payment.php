@@ -742,7 +742,7 @@ class Payment extends Info implements OrderPaymentInterface
                 $this->formatPrice($baseAmountToRefund)
             );
         }
-        $message = $this->prependMessage($message);
+        $message = $message = $this->prependMessage($message);
         $message = $this->_appendTransactionToMessage($transaction, $message);
         $orderState = $this->getOrderStateResolver()->getStateForOrder($this->getOrder());
         $statuses = $this->getOrder()->getConfig()->getStateStatuses($orderState, false);

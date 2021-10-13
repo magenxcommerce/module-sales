@@ -6,22 +6,14 @@
 namespace Magento\Sales\Model;
 
 /**
- * Validation result messages class
+ * Class ValidatorResult
  */
 class ValidatorResult implements ValidatorResultInterface
 {
     /**
      * @var \string[]
      */
-    private $messages;
-
-    /**
-     * @param array $messages
-     */
-    public function __construct(array $messages = [])
-    {
-        $this->messages = $messages;
-    }
+    private $messages = [];
 
     /**
      * @inheritdoc
@@ -32,7 +24,7 @@ class ValidatorResult implements ValidatorResultInterface
     }
 
     /**
-     * @inheritdoc
+     * @return bool
      */
     public function hasMessages()
     {
@@ -40,7 +32,7 @@ class ValidatorResult implements ValidatorResultInterface
     }
 
     /**
-     * @inheritdoc
+     * @return \string[]
      */
     public function getMessages()
     {

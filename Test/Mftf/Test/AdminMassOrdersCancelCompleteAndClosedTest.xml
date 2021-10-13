@@ -65,6 +65,7 @@
         <!-- Navigate to backend: Go to Sales > Orders -->
         <actionGroup ref="AdminOrdersPageOpenActionGroup" stepKey="onOrderPage"/>
         <actionGroup ref="AdminOrdersGridClearFiltersActionGroup" stepKey="clearFilters"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoading"/>
 
         <!-- Select Mass Action according to dataset: Cancel -->
         <actionGroup ref="AdminTwoOrderActionOnGridActionGroup" stepKey="massActionCancel">

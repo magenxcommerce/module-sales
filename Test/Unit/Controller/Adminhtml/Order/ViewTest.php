@@ -203,7 +203,7 @@ class ViewTest extends TestCase
         $id = 111;
         $titlePart = '#111';
         $this->initOrder();
-        $this->initOrderSuccess();
+        $this->initOrderSuccess($id);
         $this->prepareRedirect();
         $this->initAction();
 
@@ -264,9 +264,10 @@ class ViewTest extends TestCase
      */
     public function testGlobalException()
     {
+        $id = 111;
         $exception = new \Exception();
         $this->initOrder();
-        $this->initOrderSuccess();
+        $this->initOrderSuccess($id);
         $this->prepareRedirect();
 
         $this->resultPageFactoryMock->expects($this->once())

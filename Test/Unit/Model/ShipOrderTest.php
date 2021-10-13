@@ -34,9 +34,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class ShipOrderTest
- *
- * Test Save shipment and order data
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.TooManyFields)
  */
@@ -270,12 +267,12 @@ class ShipOrderTest extends TestCase
             ->method('setState')
             ->with(Order::STATE_PROCESSING)
             ->willReturnSelf();
-        $this->orderMock->expects($this->exactly(2))
+        $this->orderMock->expects($this->once())
             ->method('getState')
-            ->willReturn(Order::STATE_NEW);
+            ->willReturn(Order::STATE_PROCESSING);
         $this->configMock->expects($this->once())
             ->method('getStateDefaultStatus')
-            ->with(Order::STATE_NEW)
+            ->with(Order::STATE_PROCESSING)
             ->willReturn('Processing');
         $this->orderMock->expects($this->once())
             ->method('setStatus')
@@ -294,7 +291,7 @@ class ShipOrderTest extends TestCase
                 ->method('notify')
                 ->with($this->orderMock, $this->shipmentMock, $this->shipmentCommentCreationMock);
         }
-        $this->shipmentMock->expects($this->exactly(1))
+        $this->shipmentMock->expects($this->once())
             ->method('getEntityId')
             ->willReturn(2);
         $this->assertEquals(

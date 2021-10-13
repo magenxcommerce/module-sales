@@ -481,13 +481,6 @@ define([
         },
 
         switchPaymentMethod: function(method){
-            if (this.paymentMethod !== method) {
-                jQuery('#edit_form')
-                    .off('submitOrder')
-                    .on('submitOrder', function(){
-                        jQuery(this).trigger('realOrder');
-                    });
-            }
             jQuery('#edit_form').trigger('changePaymentMethod', [method]);
             this.setPaymentMethod(method);
             var data = {};
@@ -1202,7 +1195,7 @@ define([
             for (var i = 0; i < this.loadingAreas.length; i++) {
                 var id = this.loadingAreas[i];
                 if ($(this.getAreaId(id))) {
-                    if ((id in response) && id !== 'message' || response[id]) {
+                    if ('message' != id || response[id]) {
                         $(this.getAreaId(id)).update(response[id]);
                     }
                     if ($(this.getAreaId(id)).callback) {
@@ -1315,16 +1308,11 @@ define([
         },
 
         submit: function () {
-            var $editForm = jQuery('#edit_form'),
-                beforeSubmitOrderEvent;
+            var $editForm = jQuery('#edit_form');
 
             if ($editForm.valid()) {
                 $editForm.trigger('processStart');
-                beforeSubmitOrderEvent = jQuery.Event('beforeSubmitOrder');
-                $editForm.trigger(beforeSubmitOrderEvent);
-                if (beforeSubmitOrderEvent.result !== false) {
-                    $editForm.trigger('submitOrder');
-                }
+                $editForm.trigger('submitOrder');
             }
         },
 
@@ -1507,17 +1495,12 @@ define([
             if (action === 'change') {
                 var confirmText = message.replace(/%s/, customerGroupOption.text);
                 confirmText = confirmText.replace(/%s/, currentCustomerGroupTitle);
-                confirm({
-                    content: confirmText,
-                    actions: {
-                        confirm: function() {
-                            $$('#' + groupIdHtmlId + ' option').each(function (o) {
-                                o.selected = o.readAttribute('value') == groupId;
-                            });
-                            this.accountGroupChange();
-                        }.bind(this)
-                    }
-                })
+                if (confirm(confirmText)) {
+                    $$('#' + groupIdHtmlId + ' option').each(function (o) {
+                        o.selected = o.readAttribute('value') == groupId;
+                    });
+                    this.accountGroupChange();
+                }
             } else if (action === 'inform') {
                 alert({
                     content: message + '\n' + groupMessage

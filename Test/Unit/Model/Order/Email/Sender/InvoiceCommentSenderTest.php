@@ -31,6 +31,8 @@ class InvoiceCommentSenderTest extends AbstractSenderTest
         $this->stepMockSetup();
         $this->paymentHelper = $this->createPartialMock(Data::class, ['getInfoBlockHtml']);
 
+        $this->invoiceResource = $this->createMock(Invoice::class);
+
         $this->stepIdentityContainerInit(InvoiceCommentIdentity::class);
 
         $this->addressRenderer->expects($this->any())->method('format')->willReturn(1);
@@ -63,7 +65,7 @@ class InvoiceCommentSenderTest extends AbstractSenderTest
         $this->assertFalse($result);
     }
 
-    public function testSendTrueWithoutCustomerCopy()
+    public function testSendTrueWithCustomerCopy()
     {
         $billingAddress = $this->addressMock;
         $this->stepAddressFormat($billingAddress);
@@ -108,7 +110,7 @@ class InvoiceCommentSenderTest extends AbstractSenderTest
         $this->assertTrue($result);
     }
 
-    public function testSendTrueWithCustomerCopy()
+    public function testSendTrueWithoutCustomerCopy()
     {
         $billingAddress = $this->addressMock;
         $customerName = 'Test Customer';
@@ -130,9 +132,6 @@ class InvoiceCommentSenderTest extends AbstractSenderTest
         $this->identityContainerMock->expects($this->once())
             ->method('isEnabled')
             ->willReturn(true);
-        $this->identityContainerMock->expects($this->once())
-            ->method('getCopyMethod')
-            ->willReturn('copy');
         $this->templateContainerMock->expects($this->once())
             ->method('setTemplateVars')
             ->with(

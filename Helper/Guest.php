@@ -15,7 +15,6 @@ use \Magento\Sales\Model\Order;
 /**
  * Sales module base helper
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
 class Guest extends \Magento\Framework\App\Helper\AbstractHelper
 {
@@ -72,7 +71,7 @@ class Guest extends \Magento\Framework\App\Helper\AbstractHelper
     const COOKIE_NAME = 'guest-view';
 
     /**
-     * Cookie path value
+     * Cookie path
      */
     const COOKIE_PATH = '/';
 
@@ -152,7 +151,6 @@ class Guest extends \Magento\Framework\App\Helper\AbstractHelper
             return $this->resultRedirectFactory->create()->setPath('sales/order/history');
         }
         $post = $request->getPostValue();
-        $post = filter_var($post, FILTER_CALLBACK, ['options' => 'trim']);
         $fromCookie = $this->cookieManager->getCookie(self::COOKIE_NAME);
         if (empty($post) && !$fromCookie) {
             return $this->resultRedirectFactory->create()->setPath('sales/guest/form');
@@ -211,8 +209,7 @@ class Guest extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $metadata = $this->cookieMetadataFactory->createPublicCookieMetadata()
             ->setPath(self::COOKIE_PATH)
-            ->setHttpOnly(true)
-            ->setSameSite('Lax');
+            ->setHttpOnly(true);
         $this->cookieManager->setPublicCookie(self::COOKIE_NAME, $cookieValue, $metadata);
     }
 
@@ -227,7 +224,6 @@ class Guest extends \Magento\Framework\App\Helper\AbstractHelper
      */
     private function loadFromCookie($fromCookie)
     {
-        // phpcs:ignore Magento2.Functions.DiscouragedFunction
         $cookieData = explode(':', base64_decode($fromCookie));
         $protectCode = isset($cookieData[0]) ? $cookieData[0] : null;
         $incrementId = isset($cookieData[1]) ? $cookieData[1] : null;

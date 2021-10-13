@@ -24,7 +24,6 @@
         <data key="postcode">78758</data>
         <data key="email" unique="prefix">joe.buyer@email.com</data>
         <data key="telephone">512-345-6789</data>
-        <data key="country">United States</data>
     </entity>
     <entity name="BillingAddressTX" type="billing_address">
         <data key="firstname">Joe</data>
@@ -42,6 +41,5 @@
         <data key="postcode">78758</data>
         <data key="email" unique="prefix">joe.buyer@email.com</data>
         <data key="telephone">512-345-6789</data>
-        <data key="country">United States</data>
     </entity>
 </entities>
