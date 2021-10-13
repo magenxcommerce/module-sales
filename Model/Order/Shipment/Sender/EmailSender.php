@@ -89,7 +89,6 @@ class EmailSender extends Sender implements SenderInterface
      * @param bool $forceSyncMode
      *
      * @return bool
-     * @throws \Exception
      */
     public function send(
         \Magento\Sales\Api\Data\OrderInterface $order,
@@ -97,16 +96,12 @@ class EmailSender extends Sender implements SenderInterface
         \Magento\Sales\Api\Data\ShipmentCommentCreationInterface $comment = null,
         $forceSyncMode = false
     ) {
-        $shipment->setSendEmail($this->identityContainer->isEnabled());
+        $shipment->setSendEmail(true);
 
         if (!$this->globalConfig->getValue('sales_email/general/async_sending') || $forceSyncMode) {
-            $this->identityContainer->setStore($order->getStore());
-
             $transport = [
                 'order' => $order,
-                'order_id' => $order->getId(),
                 'shipment' => $shipment,
-                'shipment_id' => $shipment->getId(),
                 'comment' => $comment ? $comment->getComment() : '',
                 'billing' => $order->getBillingAddress(),
                 'payment_html' => $this->getPaymentHtml($order),
@@ -150,7 +145,6 @@ class EmailSender extends Sender implements SenderInterface
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      *
      * @return string
-     * @throws \Exception
      */
     private function getPaymentHtml(\Magento\Sales\Api\Data\OrderInterface $order)
     {

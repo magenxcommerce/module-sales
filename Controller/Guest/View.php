@@ -6,16 +6,11 @@
 namespace Magento\Sales\Controller\Guest;
 
 use Magento\Framework\App\Action;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Sales\Helper\Guest as GuestHelper;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\Controller\ResultInterface;
-use Magento\Framework\App\Action\HttpPostActionInterface as HttpPostActionInterface;
 
-/**
- * Guest order view action.
- */
-class View extends Action\Action implements HttpPostActionInterface, HttpGetActionInterface
+class View extends Action\Action
 {
     /**
      * @var \Magento\Sales\Helper\Guest
@@ -43,7 +38,7 @@ class View extends Action\Action implements HttpPostActionInterface, HttpGetActi
     }
 
     /**
-     * @inheritdoc
+     * @return \Magento\Framework\Controller\ResultInterface
      */
     public function execute()
     {

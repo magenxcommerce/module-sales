@@ -29,7 +29,7 @@ class Load extends \Magento\Framework\View\Element\Template
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Framework\Json\EncoderInterface $jsonEncoder
-     * @param \Magento\Framework\View\Helper\Js $jsHelper
+     * @param \Magento\Framework\View\Helper\Js $adminhtmlJs
      * @param array $data
      */
     public function __construct(

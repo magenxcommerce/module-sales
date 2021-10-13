@@ -3,13 +3,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Sales\Block\Adminhtml\Order\Create\Sidebar;
-
-use Magento\Catalog\Model\Product;
-use Magento\Catalog\Pricing\Price\FinalPrice;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Adminhtml sales order create sidebar cart block
@@ -65,18 +59,6 @@ class Cart extends \Magento\Sales\Block\Adminhtml\Order\Create\Sidebar\AbstractS
     }
 
     /**
-     * @inheritdoc
-     * @since 102.0.1
-     */
-    public function getItemPrice(Product $product)
-    {
-        $customPrice = $this->getCartItemCustomPrice($product);
-        $price = $customPrice ?? $product->getPriceInfo()->getPrice(FinalPrice::PRICE_CODE)->getValue();
-
-        return $this->convertPrice($price);
-    }
-
-    /**
      * Retrieve display item qty availability
      *
      * @return true
@@ -128,51 +110,5 @@ class Cart extends \Magento\Sales\Block\Adminhtml\Order\Create\Sidebar\AbstractS
         );
 
         return parent::_prepareLayout();
-    }
-
-    /**
-     * Returns cart item custom price.
-     *
-     * @param Product $product
-     * @return float|null
-     */
-    private function getCartItemCustomPrice(Product $product): ?float
-    {
-        $items = $this->getItemCollection();
-        foreach ($items as $item) {
-            $productItemId = $this->getProduct($item)->getId();
-            if ($productItemId === $product->getId() && $item->getCustomPrice()) {
-                return (float)$item->getCustomPrice();
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     * @since 102.0.4
-     */
-    public function getItemCount()
-    {
-        $count = $this->getData('item_count');
-        if ($count === null) {
-            $useQty = $this->_scopeConfig->getValue(
-                'checkout/cart_link/use_qty',
-                ScopeInterface::SCOPE_STORE
-            );
-            $allItems = $this->getItems();
-            if ($useQty) {
-                $count = 0;
-                foreach ($allItems as $item) {
-                    $count += $item->getQty();
-                }
-            } else {
-                $count = count($allItems);
-            }
-            $this->setData('item_count', $count);
-        }
-
-        return $count;
     }
 }

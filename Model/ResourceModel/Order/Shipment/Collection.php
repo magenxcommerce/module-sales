@@ -57,16 +57,14 @@ class Collection extends AbstractCollection implements ShipmentSearchResultInter
     }
 
     /**
-     * Unserialize packages in each item
+     * Used to emulate after load functionality for each item without loading them
      *
      * @return $this
      */
     protected function _afterLoad()
     {
-        foreach ($this->_items as $item) {
-            $this->getResource()->unserializeFields($item);
-        }
+        $this->walk('afterLoad');
 
-        return parent::_afterLoad();
+        return $this;
     }
 }

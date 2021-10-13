@@ -3,20 +3,16 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-declare(strict_types=1);
-
 namespace Magento\Sales\Test\Unit\Ui\Component\Listing\Column;
 
-use Magento\Directory\Model\Currency;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
-use Magento\Framework\View\Element\UiComponent\ContextInterface;
-use Magento\Framework\View\Element\UiComponent\Processor;
 use Magento\Sales\Ui\Component\Listing\Column\Price;
-use Magento\Sales\Ui\Component\Listing\Column\PurchasedPrice;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
-class PurchasedPriceTest extends TestCase
+/**
+ * Class PurchasedPriceTest
+ */
+class PurchasedPriceTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var Price
@@ -24,26 +20,25 @@ class PurchasedPriceTest extends TestCase
     protected $model;
 
     /**
-     * @var Currency|MockObject
+     * @var PriceCurrencyInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    protected $currencyMock;
+    protected $priceFormatterMock;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $objectManager = new ObjectManager($this);
-        $contextMock = $this->getMockBuilder(ContextInterface::class)
+        $contextMock = $this->getMockBuilder(\Magento\Framework\View\Element\UiComponent\ContextInterface::class)
             ->getMockForAbstractClass();
-        $processor = $this->getMockBuilder(Processor::class)
+        $processor = $this->getMockBuilder(\Magento\Framework\View\Element\UiComponent\Processor::class)
             ->disableOriginalConstructor()
             ->getMock();
         $contextMock->expects($this->never())->method('getProcessor')->willReturn($processor);
-        $this->currencyMock = $this->getMockBuilder(Currency::class)
-            ->setMethods(['load', 'format'])
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->priceFormatterMock = $this->getMockForAbstractClass(
+            \Magento\Framework\Pricing\PriceCurrencyInterface::class
+        );
         $this->model = $objectManager->getObject(
-            PurchasedPrice::class,
-            ['currency' => $this->currencyMock, 'context' => $contextMock]
+            \Magento\Sales\Ui\Component\Listing\Column\PurchasedPrice::class,
+            ['priceFormatter' => $this->priceFormatterMock, 'context' => $contextMock]
         );
     }
 
@@ -63,14 +58,9 @@ class PurchasedPriceTest extends TestCase
             ]
         ];
 
-        $this->currencyMock->expects($this->once())
-            ->method('load')
-            ->with($dataSource['data']['items'][0]['order_currency_code'])
-            ->willReturnSelf();
-
-        $this->currencyMock->expects($this->once())
+        $this->priceFormatterMock->expects($this->once())
             ->method('format')
-            ->with($oldItemValue, [], false)
+            ->with($oldItemValue, false, null, null, 'US')
             ->willReturn($newItemValue);
 
         $this->model->setData('name', $itemName);

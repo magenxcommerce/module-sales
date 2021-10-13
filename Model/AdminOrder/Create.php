@@ -14,7 +14,6 @@ use Magento\Quote\Model\Quote\Address;
 use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 use Magento\Sales\Model\Order;
-use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -23,7 +22,6 @@ use Psr\Log\LoggerInterface;
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  * @since 100.0.2
  */
 class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\Model\Cart\CartInterface
@@ -33,7 +31,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
      */
     const XML_PATH_DEFAULT_EMAIL_DOMAIN = 'customer/create_account/email_domain';
 
-    private const XML_PATH_EMAIL_REQUIRED_CREATE_ORDER = 'customer/create_account/email_required_create_order';
     /**
      * Quote session object
      *
@@ -246,11 +243,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
     private $dataObjectConverter;
 
     /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param \Magento\Framework\Registry $coreRegistry
@@ -281,7 +273,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
      * @param array $data
      * @param \Magento\Framework\Serialize\Serializer\Json|null $serializer
      * @param ExtensibleDataObjectConverter|null $dataObjectConverter
-     * @param StoreManagerInterface $storeManager
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -314,8 +305,7 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
         \Magento\Quote\Model\QuoteFactory $quoteFactory,
         array $data = [],
         \Magento\Framework\Serialize\Serializer\Json $serializer = null,
-        ExtensibleDataObjectConverter $dataObjectConverter = null,
-        StoreManagerInterface $storeManager = null
+        ExtensibleDataObjectConverter $dataObjectConverter = null
     ) {
         $this->_objectManager = $objectManager;
         $this->_eventManager = $eventManager;
@@ -349,7 +339,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
         parent::__construct($data);
         $this->dataObjectConverter = $dataObjectConverter ?: ObjectManager::getInstance()
             ->get(ExtensibleDataObjectConverter::class);
-        $this->storeManager = $storeManager ?: ObjectManager::getInstance()->get(StoreManagerInterface::class);
     }
 
     /**
@@ -399,7 +388,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
      */
     public function initRuleData()
     {
-        $this->_coreRegistry->unregister('rule_data');
         $this->_coreRegistry->register(
             'rule_data',
             new \Magento\Framework\DataObject(
@@ -417,8 +405,7 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
     /**
      * Set collect totals flag for quote
      *
-     * @param bool $flag
-     *
+     * @param   bool $flag
      * @return $this
      */
     public function setRecollect($flag)
@@ -429,8 +416,7 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
 
     /**
      * Recollect totals for customer cart.
-     *
-     * Set recollect totals flag for quote.
+     * Set recollect totals flag for quote
      *
      * @return $this
      */
@@ -517,9 +503,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
         /* Check if we edit guest order */
         $session->setCustomerId($order->getCustomerId() ?: false);
         $session->setStoreId($order->getStoreId());
-        if ($session->getData('reordered')) {
-            $this->getQuote()->setCustomerGroupId($order->getCustomerGroupId());
-        }
 
         /* Initialize catalog rule data with new session values */
         $this->initRuleData();
@@ -589,7 +572,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
         }
 
         $quote->getShippingAddress()->unsCachedItemsAll();
-        $quote->getBillingAddress()->unsCachedItemsAll();
         $quote->setTotalsCollectedFlag(false);
 
         $this->quoteRepository->save($quote);
@@ -777,7 +759,7 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
     public function getCustomerGroupId()
     {
         $groupId = $this->getQuote()->getCustomerGroupId();
-        if (!isset($groupId)) {
+        if (!$groupId) {
             $groupId = $this->getSession()->getCustomerGroupId();
         }
 
@@ -1351,7 +1333,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
 
     /**
      * Set and validate Quote address
-     *
      * All errors added to _errors
      *
      * @param \Magento\Quote\Model\Quote\Address $address
@@ -1369,7 +1350,7 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
         $data = isset($data['region']) && is_array($data['region']) ? array_merge($data, $data['region']) : $data;
 
         $addressForm = $this->_metadataFormFactory->create(
-
+            
             AddressMetadataInterface::ENTITY_TYPE_ADDRESS,
             'adminhtml_customer_address',
             $data,
@@ -1555,8 +1536,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
      */
     public function collectShippingRates()
     {
-        $store = $this->getQuote()->getStore();
-        $this->storeManager->setCurrentStore($store);
         $this->getQuote()->getShippingAddress()->setCollectShippingRates(true);
         $this->collectRates();
 
@@ -1645,7 +1624,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
             $data,
             \Magento\Customer\Api\Data\CustomerInterface::class
         );
-        $customer->setStoreId($this->getQuote()->getStoreId());
         $this->getQuote()->updateCustomerData($customer);
         $data = [];
 
@@ -1797,7 +1775,7 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
                 ->setWebsiteId($store->getWebsiteId())
                 ->setCreatedAt(null);
             $customer = $this->_validateCustomerData($customer);
-        } elseif (!$customer->getId()) {
+        } else if (!$customer->getId()) {
             /** Create new customer */
             $customerBillingAddressDataObject = $this->getBillingAddress()->exportCustomerAddress();
             $customer->setSuffix($customerBillingAddressDataObject->getSuffix())
@@ -1869,7 +1847,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
         } elseif ($addressType == \Magento\Quote\Model\Quote\Address::ADDRESS_TYPE_SHIPPING) {
             try {
                 $billingAddressDataObject = $this->accountManagement->getDefaultBillingAddress($customer->getId());
-                // phpcs:ignore Magento2.CodeAnalysis.EmptyBlock
             } catch (\Exception $e) {
                 /** Billing address does not exist. */
             }
@@ -1992,7 +1969,6 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
             /** @var \Magento\Quote\Model\Quote\Item $item */
             $messages = $item->getMessage(false);
             if ($item->getHasError() && is_array($messages) && !empty($messages)) {
-                // phpcs:ignore Magento2.Performance.ForeachArrayMerge
                 $this->_errors = array_merge($this->_errors, $messages);
             }
         }
@@ -2038,47 +2014,7 @@ class Create extends \Magento\Framework\DataObject implements \Magento\Checkout\
      */
     protected function _getNewCustomerEmail()
     {
-        $email = $this->getData('account/email');
-
-        if ($email || $this->isEmailRequired()) {
-            return $email;
-        }
-
-        return $this->generateEmail();
-    }
-
-    /**
-     * Check email is require
-     *
-     * @return bool
-     */
-    private function isEmailRequired(): bool
-    {
-        return (bool)$this->_scopeConfig->getValue(
-            self::XML_PATH_EMAIL_REQUIRED_CREATE_ORDER,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->_session->getStore()->getId()
-        );
-    }
-
-    /**
-     * Generate Email
-     *
-     * @return string
-     */
-    private function generateEmail(): string
-    {
-        $host = $this->_scopeConfig->getValue(
-            self::XML_PATH_DEFAULT_EMAIL_DOMAIN,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
-        $account = time();
-        $email = $account . '@' . $host;
-        $account = $this->getData('account');
-        $account['email'] = $email;
-        $this->setData('account', $account);
-
-        return $email;
+        return $this->getData('account/email');
     }
 
     /**

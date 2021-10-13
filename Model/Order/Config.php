@@ -5,8 +5,6 @@
  */
 namespace Magento\Sales\Model\Order;
 
-use Magento\Framework\Exception\LocalizedException;
-
 /**
  * Order configuration model
  *
@@ -75,8 +73,6 @@ class Config
     }
 
     /**
-     * Get collection.
-     *
      * @return \Magento\Sales\Model\ResourceModel\Order\Status\Collection
      */
     protected function _getCollection()
@@ -88,10 +84,8 @@ class Config
     }
 
     /**
-     * Get state.
-     *
      * @param string $state
-     * @return Status
+     * @return Status|null
      */
     protected function _getState($state)
     {
@@ -107,9 +101,9 @@ class Config
      * Retrieve default status for state
      *
      * @param   string $state
-     * @return  string|null
+     * @return  string
      */
-    public function getStateDefaultStatus($state): ?string
+    public function getStateDefaultStatus($state)
     {
         $status = false;
         $stateNode = $this->_getState($state);
@@ -121,47 +115,22 @@ class Config
     }
 
     /**
-     * Get status label for a specified area
+     * Retrieve status label
      *
-     * @param string|null $code
-     * @param string $area
-     * @return string|null
+     * @param   string $code
+     * @return  string
      */
-    private function getStatusLabelForArea(?string $code, string $area): ?string
+    public function getStatusLabel($code)
     {
+        $area = $this->state->getAreaCode();
         $code = $this->maskStatusForArea($area, $code);
         $status = $this->orderStatusFactory->create()->load($code);
 
-        if ($area === 'adminhtml') {
+        if ($area == 'adminhtml') {
             return $status->getLabel();
         }
 
         return $status->getStoreLabel();
-    }
-
-    /**
-     * Retrieve status label for detected area
-     *
-     * @param string|null $code
-     * @return string|null
-     * @throws LocalizedException
-     */
-    public function getStatusLabel($code)
-    {
-        $area = $this->state->getAreaCode() ?: \Magento\Framework\App\Area::AREA_FRONTEND;
-        return $this->getStatusLabelForArea($code, $area);
-    }
-
-    /**
-     * Retrieve status label for area
-     *
-     * @param string|null $code
-     * @return string|null
-     * @since 102.0.1
-     */
-    public function getStatusFrontendLabel(?string $code): ?string
-    {
-        return $this->getStatusLabelForArea($code, \Magento\Framework\App\Area::AREA_FRONTEND);
     }
 
     /**
@@ -182,7 +151,7 @@ class Config
     /**
      * State label getter
      *
-     * @param string $state
+     * @param   string $state
      * @return \Magento\Framework\Phrase|string
      */
     public function getStateLabel($state)
@@ -214,7 +183,7 @@ class Config
     {
         $states = [];
         foreach ($this->_getCollection() as $item) {
-            if ($item->getState() && $item->getIsDefault()) {
+            if ($item->getState()) {
                 $states[$item->getState()] = __($item->getData('label'));
             }
         }
@@ -280,9 +249,8 @@ class Config
     }
 
     /**
-     * Get existing order statuses.
-     *
-     * Visible or invisible on frontend according to passed param.
+     * Get existing order statuses
+     * Visible or invisible on frontend according to passed param
      *
      * @param bool $visibility
      * @return array

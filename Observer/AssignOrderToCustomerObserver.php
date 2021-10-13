@@ -11,7 +11,6 @@ use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Sales\Model\Order\CustomerAssignment;
 
 /**
  * Assign order to customer created after issuing guest order.
@@ -24,26 +23,15 @@ class AssignOrderToCustomerObserver implements ObserverInterface
     private $orderRepository;
 
     /**
-     * @var CustomerAssignment
-     */
-    private $assignmentService;
-
-    /**
-     * AssignOrderToCustomerObserver constructor.
-     *
      * @param OrderRepositoryInterface $orderRepository
-     * @param CustomerAssignment $assignmentService
      */
-    public function __construct(
-        OrderRepositoryInterface $orderRepository,
-        CustomerAssignment $assignmentService
-    ) {
+    public function __construct(OrderRepositoryInterface $orderRepository)
+    {
         $this->orderRepository = $orderRepository;
-        $this->assignmentService = $assignmentService;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function execute(Observer $observer)
     {
@@ -55,8 +43,11 @@ class AssignOrderToCustomerObserver implements ObserverInterface
         if (array_key_exists('__sales_assign_order_id', $delegateData)) {
             $orderId = $delegateData['__sales_assign_order_id'];
             $order = $this->orderRepository->get($orderId);
-            if (!$order->getCustomerId() && $customer->getId()) {
-                $this->assignmentService->execute($order, $customer);
+            if (!$order->getCustomerId()) {
+                //if customer ID wasn't already assigned then assigning.
+                $order->setCustomerId($customer->getId());
+                $order->setCustomerIsGuest(0);
+                $this->orderRepository->save($order);
             }
         }
     }

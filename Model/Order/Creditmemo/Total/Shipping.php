@@ -37,8 +37,6 @@ class Shipping extends AbstractTotal
     }
 
     /**
-     * Collects credit memo shipping totals.
-     *
      * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
      * @return $this
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -57,10 +55,12 @@ class Shipping extends AbstractTotal
         $orderShippingInclTax = $order->getShippingInclTax();
         $orderBaseShippingInclTax = $order->getBaseShippingInclTax();
         $allowedTaxAmount = $order->getShippingTaxAmount() - $order->getShippingTaxRefunded();
+        $baseAllowedTaxAmount = $order->getBaseShippingTaxAmount() - $order->getBaseShippingTaxRefunded();
         $allowedAmountInclTax = $allowedAmount + $allowedTaxAmount;
-        $baseAllowedAmountInclTax = $orderBaseShippingInclTax
-            - $order->getBaseShippingRefunded()
-            - $order->getBaseShippingTaxRefunded();
+        $baseAllowedAmountInclTax = $baseAllowedAmount + $baseAllowedTaxAmount;
+
+        // for the credit memo
+        $shippingAmount = $baseShippingAmount = $shippingInclTax = $baseShippingInclTax = 0;
 
         // Check if the desired shipping amount to refund was specified (from invoice or another source).
         if ($creditmemo->hasBaseShippingAmount()) {
@@ -128,6 +128,7 @@ class Shipping extends AbstractTotal
 
     /**
      * Get the Tax Config.
+     * In a future release, will become a constructor parameter.
      *
      * @return \Magento\Tax\Model\Config
      *

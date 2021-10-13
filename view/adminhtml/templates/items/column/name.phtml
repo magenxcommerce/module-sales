@@ -4,26 +4,22 @@
  * See COPYING.txt for license details.
  */
 
+// @codingStandardsIgnoreFile
+
 ?>
 <?php
 /**
- * @var $block \Magento\Sales\Block\Adminhtml\Items\Column\Name
- * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ * @see \Magento\Sales\Block\Adminhtml\Items\Column\Name
  */
 ?>
 
-<?php
-/** @var \Magento\Catalog\Helper\Data $catalogHelper */
-$catalogHelper = $block->getData('catalogHelper');
-?>
 <?php if ($_item = $block->getItem()): ?>
-    <div id="order_item_<?= (int) $_item->getId() ?>_title"
+    <div id="order_item_<?= $block->escapeHtml($_item->getId()) ?>_title"
          class="product-title">
         <?= $block->escapeHtml($_item->getName()) ?>
     </div>
     <div class="product-sku-block">
-        <span><?= $block->escapeHtml(__('SKU'))?>:</span>
-        <?= /* @noEscape */ implode('<br />', $catalogHelper->splitSku($block->escapeHtml($block->getSku()))) ?>
+        <span><?= $block->escapeHtml(__('SKU'))?>:</span> <?= implode('<br />', $this->helper('Magento\Catalog\Helper\Data')->splitSku($block->escapeHtml($block->getSku()))) ?>
     </div>
 
     <?php if ($block->getOrderOptions()): ?>
@@ -32,36 +28,22 @@ $catalogHelper = $block->getData('catalogHelper');
                 <dt><?= $block->escapeHtml($_option['label']) ?>:</dt>
                 <dd>
                     <?php if (isset($_option['custom_view']) && $_option['custom_view']): ?>
-                        <?= /* @noEscape */ $block->getCustomizedOptionValue($_option) ?>
+                        <?= /* @escapeNotVerified */ $block->getCustomizedOptionValue($_option) ?>
                     <?php else: ?>
                         <?php $_option = $block->getFormattedOption($_option['value']); ?>
                         <?php $dots = 'dots' . uniqid(); ?>
-                        <?php $id = 'id' . uniqid(); ?>
-                        <?= $block->escapeHtml($_option['value'], ['a', 'br']) ?>
-                        <?php if (isset($_option['remainder']) && $_option['remainder']): ?>
-                            <span id="<?= /* @noEscape */ $dots; ?>"> ...</span>
-                            <span id="<?= /* @noEscape */ $id; ?>">
-                                <?= $block->escapeHtml($_option['remainder'], ['a']) ?>
-                            </span>
-                            <?php $scriptString = <<<script
+                        <?= $block->escapeHtml($_option['value']) ?><?php if (isset($_option['remainder']) && $_option['remainder']): ?> <span id="<?= /* @noEscape */ $dots; ?>"> ...</span>
+                            <?php  $id = 'id' . uniqid(); ?>
+                            <span id="<?= /* @noEscape */ $id; ?>"><?= $block->escapeHtml($_option['remainder']) ?></span>
+                            <script>
                                 require(['prototype'], function() {
-
-script;
-                            $scriptString .= "$('" . /* @noEscape */ $id . "').hide();" . PHP_EOL;
-                            $scriptString .= "$('" . /* @noEscape */ $id .
-                             "').up().observe('mouseover', function(){ $('" . /* @noEscape */ $id . "').show();});" .
-                              PHP_EOL;
-                            $scriptString .= "$('" . /* @noEscape */ $id .
-                                "').up().observe('mouseover', function(){ $('" . /* @noEscape */ $dots .
-                                 "').hide();});" . PHP_EOL;
-                            $scriptString .= "$('" . /* @noEscape */ $id .
-                                "').up().observe('mouseout',  function(){ $('" . /* @noEscape */ $id .
-                                 "').hide();});" . PHP_EOL;
-                            $scriptString .= "$('" . /* @noEscape */ $id .
-                                "').up().observe('mouseout',  function(){ $('" . /* @noEscape */ $dots .
-                                 "').show();});" . PHP_EOL . "});" . PHP_EOL;
-                            ?>
-                            <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
+                                    $('<?= /* @noEscape */ $id; ?>').hide();
+                                    $('<?= /* @noEscape */ $id; ?>').up().observe('mouseover', function(){$('<?= /* @noEscape */ $id; ?>').show();});
+                                    $('<?= /* @noEscape */ $id; ?>').up().observe('mouseover', function(){$('<?= /* @noEscape */ $dots; ?>').hide();});
+                                    $('<?= /* @noEscape */ $id; ?>').up().observe('mouseout',  function(){$('<?= /* @noEscape */ $id; ?>').hide();});
+                                    $('<?= /* @noEscape */ $id; ?>').up().observe('mouseout',  function(){$('<?= /* @noEscape */ $dots; ?>').show();});
+                                });
+                            </script>
                         <?php endif; ?>
                     <?php endif; ?>
                 </dd>

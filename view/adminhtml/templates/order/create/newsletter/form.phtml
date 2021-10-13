@@ -4,11 +4,7 @@
  * See COPYING.txt for license details.
  */
 
-/** @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
+// @codingStandardsIgnoreFile
+
 ?>
-<input type="checkbox" name="newsletter:subscribe">
-<label for="newsletter:subscribe">
-    <?= $block->escapeHtml(__('Subscribe to Newsletter')) ?>
-</label>
-<?=/* @noEscape */ $secureRenderer->renderStyleAsTag("width: 90%; float: none;", "label[for='newsletter:subscribe']") ?>
-<br/>
+<input type="checkbox" name="newsletter:subscribe"> <label for="newsletter:subscribe" style="width: 90%; float: none;"><?= /* @escapeNotVerified */ __('Subscribe to Newsletter') ?></label><br/>

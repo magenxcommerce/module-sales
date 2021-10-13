@@ -53,8 +53,6 @@ class PrintShipment extends \Magento\Sales\Block\Items\AbstractItems
     }
 
     /**
-     * Preparing global layout.
-     *
      * @return void
      */
     protected function _prepareLayout()
@@ -65,8 +63,6 @@ class PrintShipment extends \Magento\Sales\Block\Items\AbstractItems
     }
 
     /**
-     * Get payment info child block html.
-     *
      * @return string
      */
     public function getPaymentInfoHtml()
@@ -75,8 +71,6 @@ class PrintShipment extends \Magento\Sales\Block\Items\AbstractItems
     }
 
     /**
-     * Retrieve current order from registry.
-     *
      * @return \Magento\Sales\Model\Order|null
      */
     public function getOrder()
@@ -110,8 +104,6 @@ class PrintShipment extends \Magento\Sales\Block\Items\AbstractItems
     }
 
     /**
-     * Prepare item before output.
-     *
      * @param AbstractBlock $renderer
      * @return $this
      */
@@ -124,7 +116,7 @@ class PrintShipment extends \Magento\Sales\Block\Items\AbstractItems
     /**
      * Returns string with formatted address
      *
-     * @param \Magento\Sales\Model\Order\Address $address
+     * @param Address $address
      * @return null|string
      */
     public function getFormattedAddress(\Magento\Sales\Model\Order\Address $address)

@@ -5,14 +5,12 @@
  */
 namespace Magento\Sales\Model\Order\Email;
 
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Mail\Template\TransportBuilderByStore;
 use Magento\Sales\Model\Order\Email\Container\IdentityInterface;
 use Magento\Sales\Model\Order\Email\Container\Template;
 
-/**
- * Sender Builder
- */
 class SenderBuilder
 {
     /**
@@ -31,8 +29,11 @@ class SenderBuilder
     protected $transportBuilder;
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
+     * @var TransportBuilderByStore
+     */
+    private $transportBuilderByStore;
+
+    /**
      * @param Template $templateContainer
      * @param IdentityInterface $identityContainer
      * @param TransportBuilder $transportBuilder
@@ -47,6 +48,9 @@ class SenderBuilder
         $this->templateContainer = $templateContainer;
         $this->identityContainer = $identityContainer;
         $this->transportBuilder = $transportBuilder;
+        $this->transportBuilderByStore = $transportBuilderByStore ?: ObjectManager::getInstance()->get(
+            TransportBuilderByStore::class
+        );
     }
 
     /**
@@ -84,10 +88,12 @@ class SenderBuilder
     {
         $copyTo = $this->identityContainer->getEmailCopyTo();
 
-        if (!empty($copyTo)) {
+        if (!empty($copyTo) && $this->identityContainer->getCopyMethod() == 'copy') {
             foreach ($copyTo as $email) {
                 $this->configureEmailTemplate();
+
                 $this->transportBuilder->addTo($email);
+
                 $transport = $this->transportBuilder->getTransport();
                 $transport->sendMessage();
             }
@@ -104,7 +110,7 @@ class SenderBuilder
         $this->transportBuilder->setTemplateIdentifier($this->templateContainer->getTemplateId());
         $this->transportBuilder->setTemplateOptions($this->templateContainer->getTemplateOptions());
         $this->transportBuilder->setTemplateVars($this->templateContainer->getTemplateVars());
-        $this->transportBuilder->setFromByScope(
+        $this->transportBuilderByStore->setFromByStore(
             $this->identityContainer->getEmailIdentity(),
             $this->identityContainer->getStore()->getId()
         );

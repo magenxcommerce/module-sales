@@ -30,7 +30,6 @@ class CreationQuantityValidator implements ValidatorInterface
 
     /**
      * ItemCreationQuantityValidator constructor.
-     *
      * @param OrderItemRepositoryInterface $orderItemRepository
      * @param mixed $context
      */
@@ -54,10 +53,6 @@ class CreationQuantityValidator implements ValidatorInterface
             return [__('The creditmemo contains product item that is not part of the original order.')];
         }
 
-        if ($orderItem->isDummy()) {
-            return [__('The creditmemo contains incorrect product items.')];
-        }
-
         if (!$this->isQtyAvailable($orderItem, $entity->getQty())) {
             return [__('The quantity to refund must not be greater than the unrefunded quantity.')];
         }
@@ -66,8 +61,6 @@ class CreationQuantityValidator implements ValidatorInterface
     }
 
     /**
-     * Check the quantity to refund is greater than the unrefunded quantity
-     *
      * @param Item $orderItem
      * @param int $qty
      * @return bool
@@ -78,8 +71,6 @@ class CreationQuantityValidator implements ValidatorInterface
     }
 
     /**
-     * Check to see if Item is part of the order
-     *
      * @param OrderItemInterface $orderItem
      * @return bool
      */

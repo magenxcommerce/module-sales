@@ -3,7 +3,6 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
-
 namespace Magento\Sales\Model;
 
 use Magento\Framework\App\ResourceConnection;
@@ -152,13 +151,10 @@ class RefundOrder implements RefundOrderInterface
             $creditmemo->setState(\Magento\Sales\Model\Order\Creditmemo::STATE_REFUNDED);
             $order->setCustomerNoteNotify($notify);
             $order = $this->refundAdapter->refund($creditmemo, $order);
-            $orderState = $this->orderStateResolver->getStateForOrder($order, []);
-            $order->setState($orderState);
-            $statuses = $this->config->getStateStatuses($orderState, false);
-            $status = in_array($order->getStatus(), $statuses, true)
-                ? $order->getStatus()
-                : $this->config->getStateDefaultStatus($orderState);
-            $order->setStatus($status);
+            $order->setState(
+                $this->orderStateResolver->getStateForOrder($order, [])
+            );
+            $order->setStatus($this->config->getStateDefaultStatus($order->getState()));
 
             $order = $this->orderRepository->save($order);
             $creditmemo = $this->creditmemoRepository->save($creditmemo);

@@ -89,7 +89,6 @@ class EmailSender extends Sender implements SenderInterface
      * @param bool $forceSyncMode
      *
      * @return bool
-     * @throws \Exception
      */
     public function send(
         \Magento\Sales\Api\Data\OrderInterface $order,
@@ -97,11 +96,9 @@ class EmailSender extends Sender implements SenderInterface
         \Magento\Sales\Api\Data\CreditmemoCommentCreationInterface $comment = null,
         $forceSyncMode = false
     ) {
-        $creditmemo->setSendEmail($this->identityContainer->isEnabled());
+        $creditmemo->setSendEmail(true);
 
         if (!$this->globalConfig->getValue('sales_email/general/async_sending') || $forceSyncMode) {
-            $this->identityContainer->setStore($order->getStore());
-
             $transport = [
                 'order' => $order,
                 'creditmemo' => $creditmemo,
@@ -148,7 +145,6 @@ class EmailSender extends Sender implements SenderInterface
      * @param \Magento\Sales\Api\Data\OrderInterface $order
      *
      * @return string
-     * @throws \Exception
      */
     private function getPaymentHtml(\Magento\Sales\Api\Data\OrderInterface $order)
     {

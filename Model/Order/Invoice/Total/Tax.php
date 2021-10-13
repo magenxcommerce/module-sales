@@ -5,9 +5,6 @@
  */
 namespace Magento\Sales\Model\Order\Invoice\Total;
 
-/**
- * Collects invoice taxes.
- */
 class Tax extends AbstractTotal
 {
     /**
@@ -72,24 +69,11 @@ class Tax extends AbstractTotal
             }
         }
 
-        $taxDiscountCompensationAmt = $totalDiscountTaxCompensation;
-        $baseTaxDiscountCompensationAmt = $baseTotalDiscountTaxCompensation;
-        $allowedDiscountTaxCompensation = $order->getDiscountTaxCompensationAmount() -
-            $order->getDiscountTaxCompensationInvoiced();
-        $allowedBaseDiscountTaxCompensation = $order->getBaseDiscountTaxCompensationAmount() -
-            $order->getBaseDiscountTaxCompensationInvoiced();
-
         if ($this->_canIncludeShipping($invoice)) {
             $totalTax += $order->getShippingTaxAmount();
             $baseTotalTax += $order->getBaseShippingTaxAmount();
             $totalDiscountTaxCompensation += $order->getShippingDiscountTaxCompensationAmount();
             $baseTotalDiscountTaxCompensation += $order->getBaseShippingDiscountTaxCompensationAmnt();
-
-            $allowedDiscountTaxCompensation += $order->getShippingDiscountTaxCompensationAmount() -
-                $order->getShippingDiscountTaxCompensationInvoiced();
-            $allowedBaseDiscountTaxCompensation += $order->getBaseShippingDiscountTaxCompensationAmnt() -
-                $order->getBaseShippingDiscountTaxCompensationInvoiced();
-
             $invoice->setShippingTaxAmount($order->getShippingTaxAmount());
             $invoice->setBaseShippingTaxAmount($order->getBaseShippingTaxAmount());
             $invoice->setShippingDiscountTaxCompensationAmount($order->getShippingDiscountTaxCompensationAmount());
@@ -97,6 +81,14 @@ class Tax extends AbstractTotal
         }
         $allowedTax = $order->getTaxAmount() - $order->getTaxInvoiced();
         $allowedBaseTax = $order->getBaseTaxAmount() - $order->getBaseTaxInvoiced();
+        $allowedDiscountTaxCompensation = $order->getDiscountTaxCompensationAmount() +
+            $order->getShippingDiscountTaxCompensationAmount() -
+            $order->getDiscountTaxCompensationInvoiced() -
+            $order->getShippingDiscountTaxCompensationInvoiced();
+        $allowedBaseDiscountTaxCompensation = $order->getBaseDiscountTaxCompensationAmount() +
+            $order->getBaseShippingDiscountTaxCompensationAmnt() -
+            $order->getBaseDiscountTaxCompensationInvoiced() -
+            $order->getBaseShippingDiscountTaxCompensationInvoiced();
 
         if ($invoice->isLast()) {
             $totalTax = $allowedTax;
@@ -115,8 +107,8 @@ class Tax extends AbstractTotal
 
         $invoice->setTaxAmount($totalTax);
         $invoice->setBaseTaxAmount($baseTotalTax);
-        $invoice->setDiscountTaxCompensationAmount($taxDiscountCompensationAmt);
-        $invoice->setBaseDiscountTaxCompensationAmount($baseTaxDiscountCompensationAmt);
+        $invoice->setDiscountTaxCompensationAmount($totalDiscountTaxCompensation);
+        $invoice->setBaseDiscountTaxCompensationAmount($baseTotalDiscountTaxCompensation);
 
         $invoice->setGrandTotal($invoice->getGrandTotal() + $totalTax + $totalDiscountTaxCompensation);
         $invoice->setBaseGrandTotal($invoice->getBaseGrandTotal() + $baseTotalTax + $baseTotalDiscountTaxCompensation);

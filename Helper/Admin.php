@@ -7,8 +7,6 @@ declare(strict_types=1);
 
 namespace Magento\Sales\Helper;
 
-use Magento\Framework\App\ObjectManager;
-
 /**
  * Sales admin helper.
  */
@@ -35,32 +33,23 @@ class Admin extends \Magento\Framework\App\Helper\AbstractHelper
     protected $escaper;
 
     /**
-     * @var \DOMDocumentFactory
-     */
-    private $domDocumentFactory;
-
-    /**
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Sales\Model\Config $salesConfig
      * @param \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency
      * @param \Magento\Framework\Escaper $escaper
-     * @param \DOMDocumentFactory|null $domDocumentFactory
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Sales\Model\Config $salesConfig,
         \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
-        \Magento\Framework\Escaper $escaper,
-        \DOMDocumentFactory $domDocumentFactory = null
+        \Magento\Framework\Escaper $escaper
     ) {
         $this->priceCurrency = $priceCurrency;
         $this->_storeManager = $storeManager;
         $this->_salesConfig = $salesConfig;
         $this->escaper = $escaper;
-        $this->domDocumentFactory = $domDocumentFactory
-            ?: ObjectManager::getInstance()->get(\DOMDocumentFactory::class);
         parent::__construct($context);
     }
 
@@ -161,42 +150,30 @@ class Admin extends \Magento\Framework\App\Helper\AbstractHelper
     public function escapeHtmlWithLinks($data, $allowedTags = null)
     {
         if (!empty($data) && is_array($allowedTags) && in_array('a', $allowedTags)) {
-            $wrapperElementId = uniqid();
-            $domDocument = $this->domDocumentFactory->create();
-
-            $internalErrors = libxml_use_internal_errors(true);
-
-            $data = mb_convert_encoding($data, 'HTML-ENTITIES', 'UTF-8');
-            $domDocument->loadHTML(
-                '<html><body id="' . $wrapperElementId . '">' . $data . '</body></html>'
-            );
-
-            libxml_use_internal_errors($internalErrors);
-
-            $linkTags = $domDocument->getElementsByTagName('a');
-
-            foreach ($linkTags as $linkNode) {
-                $linkAttributes = [];
-                foreach ($linkNode->attributes as $attribute) {
-                    $linkAttributes[$attribute->name] = $attribute->value;
+            $links = [];
+            $i = 1;
+            $data = str_replace('%', '%%', $data);
+            $regexp = "#(?J)<a"
+                ."(?:(?:\s+(?:(?:href\s*=\s*(['\"])(?<link>.*?)\\1\s*)|(?:\S+\s*=\s*(['\"])(.*?)\\3)\s*)*)|>)"
+                .">?(?:(?:(?<text>.*?)(?:<\/a\s*>?|(?=<\w))|(?<text>.*)))#si";
+            while (preg_match($regexp, $data, $matches)) {
+                $text = '';
+                if (!empty($matches['text'])) {
+                    $text = str_replace('%%', '%', $matches['text']);
                 }
-
-                foreach ($linkAttributes as $attributeName => $attributeValue) {
-                    if ($attributeName === 'href') {
-                        $url = $this->filterUrl($attributeValue ?? '');
-                        $url = $this->escaper->escapeUrl($url);
-                        $linkNode->setAttribute('href', $url);
-                    } else {
-                        $linkNode->removeAttribute($attributeName);
-                    }
-                }
+                $url = $this->filterUrl($matches['link'] ?? '');
+                //Recreate a minimalistic secure a tag
+                $links[] = sprintf(
+                    '<a href="%s">%s</a>',
+                    htmlspecialchars($url, ENT_QUOTES, 'UTF-8', false),
+                    $this->escaper->escapeHtml($text)
+                );
+                $data = str_replace($matches[0], '%' . $i . '$s', $data);
+                ++$i;
             }
-
-            $result = mb_convert_encoding($domDocument->saveHTML(), 'UTF-8', 'HTML-ENTITIES');
-            preg_match('/<body id="' . $wrapperElementId . '">(.+)<\/body><\/html>$/si', $result, $matches);
-            $data = !empty($matches) ? $matches[1] : '';
+            $data = $this->escaper->escapeHtml($data, $allowedTags);
+            return vsprintf($data, $links);
         }
-
         return $this->escaper->escapeHtml($data, $allowedTags);
     }
 
@@ -210,7 +187,7 @@ class Admin extends \Magento\Framework\App\Helper\AbstractHelper
     {
         if ($url) {
             //Revert the sprintf escaping
-            // phpcs:ignore Magento2.Functions.DiscouragedFunction
+            $url = str_replace('%%', '%', $url);
             $urlScheme = parse_url($url, PHP_URL_SCHEME);
             $urlScheme = $urlScheme ? strtolower($urlScheme) : '';
             if ($urlScheme !== 'http' && $urlScheme !== 'https') {
