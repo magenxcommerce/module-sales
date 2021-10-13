@@ -227,8 +227,7 @@ class Reorder
             ->addStoreFilter()
             ->addAttributeToSelect('*')
             ->joinAttribute('status', 'catalog_product/status', 'entity_id', null, 'inner')
-            ->joinAttribute('visibility', 'catalog_product/visibility', 'entity_id', null, 'inner')
-            ->addOptionsToResult();
+            ->joinAttribute('visibility', 'catalog_product/visibility', 'entity_id', null, 'inner');
 
         return $collection->getItems();
     }

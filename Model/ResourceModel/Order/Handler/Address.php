@@ -9,6 +9,9 @@ namespace Magento\Sales\Model\ResourceModel\Order\Handler;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\ResourceModel\Attribute;
 
+/**
+ * Class Address
+ */
 class Address
 {
     /**
@@ -66,7 +69,7 @@ class Address
                 $attributesForSave[] = 'billing_address_id';
             }
             $shippingAddress = $order->getShippingAddress();
-            if ($shippingAddress && $order->getShippingAddressId() != $shippingAddress->getId()) {
+            if ($shippingAddress && $order->getShippigAddressId() != $shippingAddress->getId()) {
                 $order->setShippingAddressId($shippingAddress->getId());
                 $attributesForSave[] = 'shipping_address_id';
             }

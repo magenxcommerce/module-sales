@@ -77,7 +77,8 @@
         <grabTextFrom selector="|Order # (\d+)|" stepKey="getOrderId"/>
 
         <!-- Open created order -->
-        <actionGroup ref="AdminOrdersPageOpenActionGroup" stepKey="goToOrdersPage"/>
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="goToOrdersPage"/>
+        <waitForPageLoad stepKey="waitForOrdersPageLoad"/>
         <actionGroup ref="FilterOrderGridByIdActionGroup" stepKey="filterOrdersGridById">
             <argument name="orderId" value="$getOrderId"/>
         </actionGroup>
@@ -88,7 +89,7 @@
         <fillField selector="{{AdminOrderInvoiceViewSection.invoiceQty}}" userInput="1" stepKey="fillInvoiceQuantity"/>
         <click selector="{{AdminOrderInvoiceViewSection.updateInvoiceBtn}}" stepKey="clickUpdateQtyInvoiceBtn"/>
         <fillField selector="{{AdminInvoiceTotalSection.invoiceComment}}" userInput="comment" stepKey="writeComment"/>
-        <actionGroup ref="AdminInvoiceClickSubmitActionGroup" stepKey="clickSubmitInvoice"/>
+        <click selector="{{AdminInvoiceMainActionsSection.submitInvoice}}" stepKey="clickSubmitInvoice"/>
 
         <!-- Assert invoice with shipment success message -->
         <see selector="{{AdminOrderDetailsMessagesSection.successMessage}}" userInput="The invoice has been created." stepKey="seeSuccessMessage"/>
@@ -102,7 +103,8 @@
         <grabFromCurrentUrl regex="~/invoice_id/(\d+)/~" stepKey="grabInvoiceId"/>
 
         <!-- Assert invoice in invoices tab -->
-        <actionGroup ref="AdminOrdersPageOpenActionGroup" stepKey="goToOrders"/>
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="goToOrders"/>
+        <waitForPageLoad stepKey="waitForOrdersLoad"/>
         <actionGroup ref="FilterOrderGridByIdActionGroup" stepKey="filterOrderGridByIdForAssertingInvoiceBtn">
             <argument name="orderId" value="$getOrderId"/>
         </actionGroup>

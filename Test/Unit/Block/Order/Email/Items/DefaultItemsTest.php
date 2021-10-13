@@ -11,7 +11,7 @@ use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\Framework\View\Layout;
-use Magento\Quote\Model\Quote\Item as QuoteItem;
+use Magento\Quote\Model\Quote\Item;
 use Magento\Sales\Block\Order\Email\Items\DefaultItems;
 use Magento\Sales\Model\Order\Item as OrderItem;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 class DefaultItemsTest extends TestCase
 {
     /**
-     * @var MockObject|DefaultItems
+     * @var MockObject|\Magento\Sales\Block\Order\Email\Items\DefaultItem
      */
     protected $block;
 
@@ -39,15 +39,8 @@ class DefaultItemsTest extends TestCase
      */
     protected $objectManager;
 
-    /**
-     * @var MockObject|OrderItem
-     */
+    /** @var MockObject|Item  */
     protected $itemMock;
-
-    /**
-     * @var MockObject|QuoteItem
-     */
-    protected $quoteItemMock;
 
     /**
      * Initialize required data
@@ -61,6 +54,16 @@ class DefaultItemsTest extends TestCase
             ->setMethods(['getBlock'])
             ->getMock();
 
+        $this->block = $this->objectManager->getObject(
+            DefaultItems::class,
+            [
+                'context' => $this->objectManager->getObject(
+                    Context::class,
+                    ['layout' => $this->layoutMock]
+                )
+            ]
+        );
+
         $this->priceRenderBlock = $this->getMockBuilder(Template::class)
             ->disableOriginalConstructor()
             ->setMethods(['setItem', 'toHtml'])
@@ -69,47 +72,16 @@ class DefaultItemsTest extends TestCase
         $this->itemMock = $this->getMockBuilder(OrderItem::class)
             ->disableOriginalConstructor()
             ->getMock();
-
-        $this->quoteItemMock = $this->getMockBuilder(QuoteItem::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getQty'])
-            ->getMock();
-
-        $this->block = $this->objectManager->getObject(
-            DefaultItems::class,
-            [
-                'context' => $this->objectManager->getObject(
-                    Context::class,
-                    ['layout' => $this->layoutMock]
-                ),
-                'data' => [
-                    'item' => $this->quoteItemMock
-                ]
-            ]
-        );
     }
 
-    /**
-     * @param float $price
-     * @param string $html
-     * @param float $quantity
-     * @dataProvider getItemPriceDataProvider
-     * */
-    public function testGetItemPrice($price, $html, $quantity)
+    public function testGetItemPrice()
     {
+        $html = '$34.28';
+
         $this->layoutMock->expects($this->once())
             ->method('getBlock')
             ->with('item_price')
             ->willReturn($this->priceRenderBlock);
-        $this->quoteItemMock->expects($this->any())
-            ->method('getQty')
-            ->willReturn($quantity);
-        $this->itemMock->expects($this->any())
-            ->method('setRowTotal')
-            ->willReturn($price * $quantity);
-        $this->itemMock->expects($this->any())
-            ->method('setBaseRowTotal')
-            ->willReturn($price * $quantity);
 
         $this->priceRenderBlock->expects($this->once())
             ->method('setItem')
@@ -120,16 +92,5 @@ class DefaultItemsTest extends TestCase
             ->willReturn($html);
 
         $this->assertEquals($html, $this->block->getItemPrice($this->itemMock));
-    }
-
-    /**
-     * @return array
-     */
-    public function getItemPriceDataProvider()
-    {
-        return [
-            'get default item price' => [34.28,'$34.28',1.0],
-            'get item price with quantity 2.0' => [12.00,'$24.00',2.0]
-        ];
     }
 }

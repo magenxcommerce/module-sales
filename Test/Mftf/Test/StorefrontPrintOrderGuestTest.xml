@@ -44,8 +44,8 @@
             <checkOption selector="{{AdminProductDownloadableSection.isLinksPurchasedSeparately}}" stepKey="checkOption"/>
             <waitForAjaxLoad stepKey="waitForAjaxLoad"/>
             <grabValueFrom selector="{{AdminProductDownloadableSection.addLinkTitleInput('0')}}" stepKey="grabLink"/>
-
-            <actionGroup ref="AdminProductFormSaveButtonClickActionGroup" stepKey="clickSave"/>
+            <click selector="{{AdminProductFormSection.save}}" stepKey="clickSave"/>
+            <waitForLoadingMaskToDisappear stepKey="waitForSave"/>
 
             <!-- Create configurable Product -->
             <createData entity="ApiConfigurableProduct" stepKey="createConfigProduct">

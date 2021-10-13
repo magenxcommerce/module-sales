@@ -118,7 +118,6 @@ class Info extends AbstractModel implements InfoInterface
                 $instance = $this->paymentData->getMethodInstance(Substitution::CODE);
             }
             $instance->setInfoInstance($this);
-            $instance->setStore($this->getOrder()->getStoreId());
             $this->setMethodInstance($instance);
         }
         return $this->getData('method_instance');

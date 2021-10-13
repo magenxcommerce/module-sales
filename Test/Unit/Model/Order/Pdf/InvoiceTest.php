@@ -21,14 +21,11 @@ use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Address\Renderer;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Pdf\Config;
-use Magento\Store\Model\App\Emulation;
 use Magento\Store\Model\ScopeInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- *
- * Tests Sales Order Invoice PDF model
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -69,11 +66,6 @@ class InvoiceTest extends TestCase
      */
     protected $paymentDataMock;
 
-    /**
-     * @var Emulation
-     */
-    private $appEmulation;
-
     protected function setUp(): void
     {
         $this->_pdfConfigMock = $this->getMockBuilder(Config::class)
@@ -97,7 +89,6 @@ class InvoiceTest extends TestCase
         $this->scopeConfigMock = $this->getMockForAbstractClass(ScopeConfigInterface::class);
         $this->addressRendererMock = $this->createMock(Renderer::class);
         $this->paymentDataMock = $this->createMock(Data::class);
-        $this->appEmulation = $this->createMock(Emulation::class);
 
         $helper = new ObjectManager($this);
         $this->_model = $helper->getObject(
@@ -109,8 +100,7 @@ class InvoiceTest extends TestCase
                 'scopeConfig' => $this->scopeConfigMock,
                 'addressRenderer' => $this->addressRendererMock,
                 'string' => new StringUtils(),
-                'paymentData' => $this->paymentDataMock,
-                'appEmulation' => $this->appEmulation
+                'paymentData' => $this->paymentDataMock
             ]
         );
     }
@@ -146,19 +136,7 @@ class InvoiceTest extends TestCase
     {
         $filename = 'image.jpg';
         $path = '/sales/store/logo/';
-        $storeId = 1;
 
-        $this->appEmulation->expects($this->once())
-            ->method('startEnvironmentEmulation')
-            ->with(
-                $storeId,
-                \Magento\Framework\App\Area::AREA_FRONTEND,
-                true
-            )
-            ->willReturnSelf();
-        $this->appEmulation->expects($this->once())
-            ->method('stopEnvironmentEmulation')
-            ->willReturnSelf();
         $this->_pdfConfigMock->expects($this->once())
             ->method('getRenderersPerProduct')
             ->with('invoice')
@@ -202,9 +180,6 @@ class InvoiceTest extends TestCase
         $orderMock->expects($this->any())
             ->method('getPayment')
             ->willReturn($infoMock);
-        $invoiceMock->expects($this->any())
-            ->method('getStoreId')
-            ->willReturn($storeId);
         $invoiceMock->expects($this->any())
             ->method('getOrder')
             ->willReturn($orderMock);

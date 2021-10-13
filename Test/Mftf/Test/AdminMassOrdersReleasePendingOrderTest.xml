@@ -47,7 +47,8 @@
         </assertNotEmpty>
 
         <!-- Navigate to backend: Go to Sales > Orders -->
-        <actionGroup ref="AdminOrdersPageOpenActionGroup" stepKey="onOrderPage"/>
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="onOrderPage"/>
+        <waitForPageLoad stepKey="waitForOrderPageLoad"/>
         <actionGroup ref="AdminOrdersGridClearFiltersActionGroup" stepKey="clearFilters"/>
         <waitForLoadingMaskToDisappear stepKey="waitForLoading"/>
 
