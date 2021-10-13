@@ -7,7 +7,6 @@ namespace Magento\Sales\Controller\Adminhtml\Order\Creditmemo;
 
 use Magento\Framework\App\Action\HttpPostActionInterface as HttpPostActionInterface;
 use Magento\Backend\App\Action;
-use Magento\Sales\Helper\Data as SalesData;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 
@@ -36,29 +35,20 @@ class Save extends \Magento\Backend\App\Action implements HttpPostActionInterfac
     protected $resultForwardFactory;
 
     /**
-     * @var SalesData
-     */
-    private $salesData;
-
-    /**
      * @param Action\Context $context
      * @param \Magento\Sales\Controller\Adminhtml\Order\CreditmemoLoader $creditmemoLoader
      * @param CreditmemoSender $creditmemoSender
      * @param \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory
-     * @param SalesData $salesData
      */
     public function __construct(
         Action\Context $context,
         \Magento\Sales\Controller\Adminhtml\Order\CreditmemoLoader $creditmemoLoader,
         CreditmemoSender $creditmemoSender,
-        \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory,
-        SalesData $salesData = null
+        \Magento\Backend\Model\View\Result\ForwardFactory $resultForwardFactory
     ) {
         $this->creditmemoLoader = $creditmemoLoader;
         $this->creditmemoSender = $creditmemoSender;
         $this->resultForwardFactory = $resultForwardFactory;
-        $this->salesData = $salesData ?: \Magento\Framework\App\ObjectManager::getInstance()
-            ->get(SalesData::class);
         parent::__construct($context);
     }
 
@@ -118,7 +108,7 @@ class Save extends \Magento\Backend\App\Action implements HttpPostActionInterfac
                 $doOffline = isset($data['do_offline']) ? (bool)$data['do_offline'] : false;
                 $creditmemoManagement->refund($creditmemo, $doOffline);
 
-                if (!empty($data['send_email']) && $this->salesData->canSendNewCreditMemoEmail()) {
+                if (!empty($data['send_email'])) {
                     $this->creditmemoSender->send($creditmemo);
                 }
 

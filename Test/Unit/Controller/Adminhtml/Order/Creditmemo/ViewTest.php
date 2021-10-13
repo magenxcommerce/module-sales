@@ -13,8 +13,6 @@ use Magento\Backend\Model\Session;
 use Magento\Backend\Model\View\Result\Forward;
 use Magento\Backend\Model\View\Result\ForwardFactory;
 use Magento\Backend\Model\View\Result\Page;
-use Magento\Backend\Model\View\Result\Redirect;
-use Magento\Backend\Model\View\Result\RedirectFactory;
 use Magento\Framework\App\ActionFlag;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Message\Manager;
@@ -108,17 +106,6 @@ class ViewTest extends TestCase
     protected $pageTitleMock;
 
     /**
-     * @var \Magento\Sales\Controller\Adminhtml\Order\Creditmemo\View
-     * @var RedirectFactory|MockObject
-     */
-    protected $resultRedirectFactoryMock;
-
-    /**
-     * @var Redirect|MockObject
-     */
-    protected $resultRedirectMock;
-
-    /**
      * @var PageFactory|MockObject
      */
     protected $resultPageFactoryMock;
@@ -143,6 +130,9 @@ class ViewTest extends TestCase
      */
     protected function setUp(): void
     {
+        $titleMock = $this->getMockBuilder(\Magento\Framework\App\Action\Title::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->invoiceMock = $this->getMockBuilder(Invoice::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -213,13 +203,7 @@ class ViewTest extends TestCase
         $this->resultForwardMock = $this->getMockBuilder(Forward::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->resultRedirectFactoryMock = $this->getMockBuilder(RedirectFactory::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['create'])
-            ->getMock();
-        $this->resultRedirectMock = $this->getMockBuilder(Redirect::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+
         $this->contextMock->expects($this->any())
             ->method('getSession')
             ->willReturn($this->sessionMock);
@@ -235,6 +219,9 @@ class ViewTest extends TestCase
         $this->contextMock->expects($this->any())
             ->method('getObjectManager')
             ->willReturn($this->objectManagerMock);
+        $this->contextMock->expects($this->any())
+            ->method('getTitle')
+            ->willReturn($titleMock);
         $this->contextMock->expects($this->any())
             ->method('getMessageManager')
             ->willReturn($this->messageManagerMock);
@@ -252,8 +239,7 @@ class ViewTest extends TestCase
                 'context' => $this->contextMock,
                 'creditmemoLoader' => $this->loaderMock,
                 'resultPageFactory' => $this->resultPageFactoryMock,
-                'resultForwardFactory' => $this->resultForwardFactoryMock,
-                'resultRedirectFactory' => $this->resultRedirectFactoryMock
+                'resultForwardFactory' => $this->resultForwardFactoryMock
             ]
         );
     }
@@ -266,11 +252,16 @@ class ViewTest extends TestCase
         $this->loaderMock->expects($this->once())
             ->method('load')
             ->willReturn(false);
+        $this->resultForwardFactoryMock->expects($this->once())
+            ->method('create')
+            ->willReturn($this->resultForwardMock);
+        $this->resultForwardMock->expects($this->once())
+            ->method('forward')
+            ->with('noroute')
+            ->willReturnSelf();
 
-        $this->prepareRedirect();
-        $this->setPath('sales/creditmemo');
         $this->assertInstanceOf(
-            Redirect::class,
+            Forward::class,
             $this->controller->execute()
         );
     }
@@ -330,26 +321,5 @@ class ViewTest extends TestCase
             [false],
             [$this->invoiceMock]
         ];
-    }
-
-    /**
-     * prepareRedirect
-     */
-    protected function prepareRedirect()
-    {
-        $this->resultRedirectFactoryMock->expects($this->once())
-            ->method('create')
-            ->willReturn($this->resultRedirectMock);
-    }
-
-    /**
-     * @param string $path
-     * @param array $params
-     */
-    protected function setPath($path, $params = [])
-    {
-        $this->resultRedirectMock->expects($this->once())
-            ->method('setPath')
-            ->with($path, $params);
     }
 }

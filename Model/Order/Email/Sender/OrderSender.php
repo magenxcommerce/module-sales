@@ -98,7 +98,6 @@ class OrderSender extends Sender
      */
     public function send(Order $order, $forceSyncMode = false)
     {
-        $this->identityContainer->setStore($order->getStore());
         $order->setSendEmail($this->identityContainer->isEnabled());
 
         if (!$this->globalConfig->getValue('sales_email/general/async_sending') || $forceSyncMode) {

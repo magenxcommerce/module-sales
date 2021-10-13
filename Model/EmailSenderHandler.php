@@ -132,9 +132,8 @@ class EmailSenderHandler
                 /** @var \Magento\Sales\Model\AbstractModel $item */
                 foreach ($entityCollection->getItems() as $item) {
                     if ($this->emailSender->send($item, true)) {
-                        $this->entityResource->saveAttribute(
-                            $item->setEmailSent(true),
-                            'email_sent'
+                        $this->entityResource->save(
+                            $item->setEmailSent(true)
                         );
                     }
                 }

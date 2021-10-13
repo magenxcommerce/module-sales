@@ -8,12 +8,12 @@ namespace Magento\Sales\Controller\Adminhtml\Order;
 
 use Magento\Framework\DataObject;
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\Order\CreditmemoFactory;
+use \Magento\Sales\Model\Order\CreditmemoFactory;
 
 /**
- * Loader for creditmemo
+ * Class CreditmemoLoader
  *
+ * @package Magento\Sales\Controller\Adminhtml\Order
  * @method CreditmemoLoader setCreditmemoId($id)
  * @method CreditmemoLoader setCreditmemo($creditMemo)
  * @method CreditmemoLoader setInvoiceId($id)
@@ -22,7 +22,6 @@ use Magento\Sales\Model\Order\CreditmemoFactory;
  * @method string getCreditmemo()
  * @method int getInvoiceId()
  * @method int getOrderId()
- * @SuppressWarnings(PHPMD.CookieAndSessionMisuse)
  */
 class CreditmemoLoader extends DataObject
 {
@@ -130,8 +129,7 @@ class CreditmemoLoader extends DataObject
 
     /**
      * Check if creditmeno can be created for order
-     *
-     * @param Order $order
+     * @param \Magento\Sales\Model\Order $order
      * @return bool
      */
     protected function _canCreditmemo($order)
@@ -155,9 +153,7 @@ class CreditmemoLoader extends DataObject
     }
 
     /**
-     * Inits invoice
-     *
-     * @param Order $order
+     * @param \Magento\Sales\Model\Order $order
      * @return $this|bool
      */
     protected function _initInvoice($order)
@@ -185,12 +181,7 @@ class CreditmemoLoader extends DataObject
         $creditmemoId = $this->getCreditmemoId();
         $orderId = $this->getOrderId();
         if ($creditmemoId) {
-            try {
-                $creditmemo = $this->creditmemoRepository->get($creditmemoId);
-            } catch (\Exception $e) {
-                $this->messageManager->addErrorMessage(__('This creditmemo no longer exists.'));
-                return false;
-            }
+            $creditmemo = $this->creditmemoRepository->get($creditmemoId);
         } elseif ($orderId) {
             $data = $this->getCreditmemo();
             $order = $this->orderFactory->create()->load($orderId);

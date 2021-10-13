@@ -100,7 +100,7 @@ class EmailSenderHandlerTest extends TestCase
             false,
             false,
             true,
-            ['saveAttribute']
+            ['save']
         );
 
         $this->entityCollection = $this->getMockForAbstractClass(
@@ -252,7 +252,7 @@ class EmailSenderHandlerTest extends TestCase
 
                     $this->entityResource
                         ->expects($this->once())
-                        ->method('saveAttribute')
+                        ->method('save')
                         ->with($collectionItem);
                 }
             }

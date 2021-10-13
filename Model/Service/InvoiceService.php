@@ -194,7 +194,7 @@ class InvoiceService implements InvoiceManagementInterface
     ): array {
         foreach ($order->getAllItems() as $orderItem) {
             if (isset($orderItemsQtyToInvoice[$orderItem->getId()])) {
-                if ($orderItem->getHasChildren()) {
+                if ($orderItem->isDummy() && $orderItem->getHasChildren()) {
                     $orderItemsQtyToInvoice = $this->setChildItemsQtyToInvoice($orderItem, $orderItemsQtyToInvoice);
                 }
             } else {

@@ -71,10 +71,9 @@ class Cart extends \Magento\Sales\Block\Adminhtml\Order\Create\Sidebar\AbstractS
     public function getItemPrice(Product $product)
     {
         $customPrice = $this->getCartItemCustomPrice($product);
+        $price = $customPrice ?? $product->getPriceInfo()->getPrice(FinalPrice::PRICE_CODE)->getValue();
 
-        return $customPrice !== null
-            ? $this->convertPrice($customPrice)
-            : $this->priceCurrency->format($product->getPriceInfo()->getPrice(FinalPrice::PRICE_CODE)->getValue());
+        return $this->convertPrice($price);
     }
 
     /**

@@ -26,14 +26,6 @@ class InvoiceCommentSenderTest extends AbstractSenderTest
      */
     protected $invoiceMock;
 
-    /**
-     * @var Invoice|MockObject
-     */
-    private $invoiceResource;
-
-    /**
-     * @inheritDoc
-     */
     protected function setUp(): void
     {
         $this->stepMockSetup();

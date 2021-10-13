@@ -9,28 +9,18 @@
  */
 namespace Magento\Sales\Block\Order;
 
-use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Registry;
-use Magento\Framework\View\Element\AbstractBlock;
-use Magento\Framework\View\Element\Template\Context;
-use Magento\Sales\Block\Items\AbstractItems;
-use Magento\Sales\Model\Order;
-use Magento\Sales\Model\ResourceModel\Order\Item\Collection;
-use Magento\Sales\Model\ResourceModel\Order\Item\CollectionFactory;
-use Magento\Theme\Block\Html\Pager;
-
 /**
  * Sales order view items block.
  *
  * @api
  * @since 100.0.2
  */
-class Items extends AbstractItems
+class Items extends \Magento\Sales\Block\Items\AbstractItems
 {
     /**
      * Core registry
      *
-     * @var Registry
+     * @var \Magento\Framework\Registry
      */
     protected $_coreRegistry = null;
 
@@ -42,30 +32,30 @@ class Items extends AbstractItems
     private $itemsPerPage;
 
     /**
-     * @var CollectionFactory
+     * @var \Magento\Sales\Model\ResourceModel\Order\Item\CollectionFactory
      */
     private $itemCollectionFactory;
 
     /**
-     * @var Collection|null
+     * @var \Magento\Sales\Model\ResourceModel\Order\Item\Collection|null
      */
     private $itemCollection;
 
     /**
-     * @param Context $context
-     * @param Registry $registry
+     * @param \Magento\Framework\View\Element\Template\Context $context
+     * @param \Magento\Framework\Registry $registry
      * @param array $data
-     * @param CollectionFactory|null $itemCollectionFactory
+     * @param \Magento\Sales\Model\ResourceModel\Order\Item\CollectionFactory|null $itemCollectionFactory
      */
     public function __construct(
-        Context $context,
-        Registry $registry,
+        \Magento\Framework\View\Element\Template\Context $context,
+        \Magento\Framework\Registry $registry,
         array $data = [],
-        CollectionFactory $itemCollectionFactory = null
+        \Magento\Sales\Model\ResourceModel\Order\Item\CollectionFactory $itemCollectionFactory = null
     ) {
         $this->_coreRegistry = $registry;
-        $this->itemCollectionFactory = $itemCollectionFactory ?: ObjectManager::getInstance()
-            ->get(CollectionFactory::class);
+        $this->itemCollectionFactory = $itemCollectionFactory ?: \Magento\Framework\App\ObjectManager::getInstance()
+            ->get(\Magento\Sales\Model\ResourceModel\Order\Item\CollectionFactory::class);
         parent::__construct($context, $data);
     }
 
@@ -78,12 +68,18 @@ class Items extends AbstractItems
     protected function _prepareLayout()
     {
         $this->itemsPerPage = $this->_scopeConfig->getValue('sales/orders/items_per_page');
-        $this->itemCollection = $this->createItemsCollection();
 
-        /** @var Pager $pagerBlock */
+        $this->itemCollection = $this->itemCollectionFactory->create();
+        $this->itemCollection->setOrderFilter($this->getOrder());
+
+        /** @var \Magento\Theme\Block\Html\Pager $pagerBlock */
         $pagerBlock = $this->getChildBlock('sales_order_item_pager');
         if ($pagerBlock) {
-            $this->preparePager($pagerBlock);
+            $pagerBlock->setLimit($this->itemsPerPage);
+            //here pager updates collection parameters
+            $pagerBlock->setCollection($this->itemCollection);
+            $pagerBlock->setAvailableLimit([$this->itemsPerPage]);
+            $pagerBlock->setShowAmounts($this->isPagerDisplayed());
         }
 
         return parent::_prepareLayout();
@@ -126,7 +122,7 @@ class Items extends AbstractItems
      */
     public function getPagerHtml()
     {
-        /** @var Pager $pagerBlock */
+        /** @var \Magento\Theme\Block\Html\Pager $pagerBlock */
         $pagerBlock = $this->getChildBlock('sales_order_item_pager');
         return $pagerBlock ? $pagerBlock->toHtml() : '';
     }
@@ -134,39 +130,10 @@ class Items extends AbstractItems
     /**
      * Retrieve current order model instance
      *
-     * @return Order
+     * @return \Magento\Sales\Model\Order
      */
     public function getOrder()
     {
         return $this->_coreRegistry->registry('current_order');
-    }
-
-    /**
-     * Prepare pager block
-     *
-     * @param AbstractBlock $pagerBlock
-     */
-    private function preparePager(AbstractBlock $pagerBlock): void
-    {
-        $collectionToPager = $this->createItemsCollection();
-        $collectionToPager->addFieldToFilter('parent_item_id', ['null' => true]);
-        $pagerBlock->setCollection($collectionToPager);
-
-        $pagerBlock->setLimit($this->itemsPerPage);
-        $pagerBlock->setAvailableLimit([$this->itemsPerPage]);
-        $pagerBlock->setShowAmounts($this->isPagerDisplayed());
-    }
-
-    /**
-     * Create items collection
-     *
-     * @return Collection
-     */
-    private function createItemsCollection(): Collection
-    {
-        $collection = $this->itemCollectionFactory->create();
-        $collection->setOrderFilter($this->getOrder());
-
-        return $collection;
     }
 }

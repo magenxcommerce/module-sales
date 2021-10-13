@@ -45,10 +45,8 @@
         </actionGroup>
 
         <!--Fill customer group and customer email-->
-        <comment userInput="Comment is added to preserve the step key for backward compatibility" stepKey="selectCustomerGroup" after="addSimpleProductToOrder"/>
-        <actionGroup ref="AdminFillAccountInformationOnCreateOrderPageActionGroup" stepKey="fillCustomerEmail" after="selectCustomerGroup">
-            <argument name="email" value="{{Simple_US_Customer.email}}"/>
-        </actionGroup>
+        <selectOption selector="{{AdminOrderFormAccountSection.group}}" userInput="{{GeneralCustomerGroup.code}}" stepKey="selectCustomerGroup" after="addSimpleProductToOrder"/>
+        <fillField selector="{{AdminOrderFormAccountSection.email}}" userInput="{{Simple_US_Customer.email}}" stepKey="fillCustomerEmail" after="selectCustomerGroup"/>
 
         <!--Fill wrong customer address information-->
         <actionGroup ref="FillOrderCustomerInformationActionGroup" stepKey="fillWrongCustomerAddress" after="fillCustomerEmail">

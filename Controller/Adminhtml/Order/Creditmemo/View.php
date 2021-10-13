@@ -6,9 +6,8 @@
 namespace Magento\Sales\Controller\Adminhtml\Order\Creditmemo;
 
 use Magento\Backend\App\Action;
-use Magento\Framework\App\Action\HttpGetActionInterface as HttpGetActionInterface;
 
-class View extends \Magento\Backend\App\Action implements HttpGetActionInterface
+class View extends \Magento\Backend\App\Action
 {
     /**
      * Authorization level of a basic admin session
@@ -76,9 +75,9 @@ class View extends \Magento\Backend\App\Action implements HttpGetActionInterface
             }
             return $resultPage;
         } else {
-            $resultRedirect = $this->resultRedirectFactory->create();
-            $resultRedirect->setPath('sales/creditmemo');
-            return $resultRedirect;
+            $resultForward = $this->resultForwardFactory->create();
+            $resultForward->forward('noroute');
+            return $resultForward;
         }
     }
 }

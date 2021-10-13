@@ -8,7 +8,6 @@ namespace Magento\Sales\Model;
 use Magento\Config\Model\Config\Source\Nooptreq;
 use Magento\Directory\Model\Currency;
 use Magento\Directory\Model\RegionFactory;
-use Magento\Directory\Model\ResourceModel\Region as RegionResource;
 use Magento\Framework\Api\AttributeValueFactory;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -320,11 +319,6 @@ class Order extends AbstractModel implements EntityInterface, OrderInterface
     private $regionItems;
 
     /**
-     * @var RegionResource
-     */
-    private $regionResource;
-
-    /**
      * @param \Magento\Framework\Model\Context $context
      * @param \Magento\Framework\Registry $registry
      * @param \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory
@@ -349,16 +343,15 @@ class Order extends AbstractModel implements EntityInterface, OrderInterface
      * @param ResourceModel\Order\CollectionFactory $salesOrderCollectionFactory
      * @param PriceCurrencyInterface $priceCurrency
      * @param \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productListFactory
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
+     * @param \Magento\Framework\Model\ResourceModel\AbstractResource $resource
+     * @param \Magento\Framework\Data\Collection\AbstractDb $resourceCollection
      * @param array $data
-     * @param ResolverInterface|null $localeResolver
+     * @param ResolverInterface $localeResolver
      * @param ProductOption|null $productOption
-     * @param OrderItemRepositoryInterface|null $itemRepository
-     * @param SearchCriteriaBuilder|null $searchCriteriaBuilder
-     * @param ScopeConfigInterface|null $scopeConfig
-     * @param RegionFactory|null $regionFactory
-     * @param RegionResource|null $regionResource
+     * @param OrderItemRepositoryInterface $itemRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param ScopeConfigInterface $scopeConfig
+     * @param RegionFactory $regionFactory
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -394,8 +387,7 @@ class Order extends AbstractModel implements EntityInterface, OrderInterface
         OrderItemRepositoryInterface $itemRepository = null,
         SearchCriteriaBuilder $searchCriteriaBuilder = null,
         ScopeConfigInterface $scopeConfig = null,
-        RegionFactory $regionFactory = null,
-        RegionResource $regionResource = null
+        RegionFactory $regionFactory = null
     ) {
         $this->_storeManager = $storeManager;
         $this->_orderConfig = $orderConfig;
@@ -425,7 +417,6 @@ class Order extends AbstractModel implements EntityInterface, OrderInterface
             ->get(SearchCriteriaBuilder::class);
         $this->scopeConfig = $scopeConfig ?: ObjectManager::getInstance()->get(ScopeConfigInterface::class);
         $this->regionFactory = $regionFactory ?: ObjectManager::getInstance()->get(RegionFactory::class);
-        $this->regionResource = $regionResource ?: ObjectManager::getInstance()->get(RegionResource::class);
         $this->regionItems = [];
 
         parent::__construct(
@@ -1370,6 +1361,7 @@ class Order extends AbstractModel implements EntityInterface, OrderInterface
      */
     public function getAddressesCollection()
     {
+        $region = $this->regionFactory->create();
         $collection = $this->_addressCollectionFactory->create()->setOrderFilter($this);
         if ($this->getId()) {
             foreach ($collection as $address) {
@@ -1378,8 +1370,7 @@ class Order extends AbstractModel implements EntityInterface, OrderInterface
                         $address->setRegion($this->regionItems[$address->getCountryId()][$address->getRegion()]);
                     }
                 } else {
-                    $region = $this->regionFactory->create();
-                    $this->regionResource->loadByName($region, $address->getRegion(), $address->getCountryId());
+                    $region->loadByName($address->getRegion(), $address->getCountryId());
                     $this->regionItems[$address->getCountryId()][$address->getRegion()] = $region->getName();
                     if ($region->getName()) {
                         $address->setRegion($region->getName());

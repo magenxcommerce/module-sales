@@ -942,8 +942,7 @@ define([
          */
         sidebarConfigureProduct: function (listType, productId, itemId) {
             // create additional fields
-            var params = {},
-                isWishlist = !!itemId;
+            var params = {};
             params.reset_shipping = true;
             params.add_product = productId;
             this.prepareParams(params);
@@ -964,18 +963,10 @@ define([
             }.bind(this));
             // response handler
             productConfigure.setOnLoadIFrameCallback(listType, function (response) {
-                var areas = ['items', 'shipping_method', 'billing_method', 'totals', 'giftmessage'];
-
                 if (!response.ok) {
                     return;
                 }
-                if (isWishlist) {
-                    this.removeSidebarItem(itemId, 'wishlist').done(function () {
-                        this.loadArea(areas, true);
-                    }.bind(this));
-                } else {
-                    this.loadArea(areas, true);
-                }
+                this.loadArea(['items', 'shipping_method', 'billing_method', 'totals', 'giftmessage'], true);
             }.bind(this));
             // show item configuration
             itemId = itemId ? itemId : productId;
@@ -984,10 +975,7 @@ define([
         },
 
         removeSidebarItem: function (id, from) {
-            return this.loadArea(['sidebar_' + from], 'sidebar_data_' + from, {
-                remove_item: id,
-                from: from
-            });
+            this.loadArea(['sidebar_' + from], 'sidebar_data_' + from, {remove_item: id, from: from});
         },
 
         itemsUpdate: function () {

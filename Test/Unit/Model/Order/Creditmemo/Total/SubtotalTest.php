@@ -36,14 +36,6 @@ class SubtotalTest extends TestCase
      */
     protected $orderItemMock;
 
-    /**
-     * @var Order|MockObject
-     */
-    private $orderMock;
-
-    /**
-     * @inheritDoc
-     */
     protected function setUp(): void
     {
         $this->orderMock = $this->createPartialMock(

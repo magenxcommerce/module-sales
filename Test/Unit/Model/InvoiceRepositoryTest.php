@@ -41,14 +41,6 @@ class InvoiceRepositoryTest extends TestCase
      */
     private $collectionProcessorMock;
 
-    /**
-     * @var Type|MockObject
-     */
-    private $type;
-
-    /**
-     * @inheritDoc
-     */
     protected function setUp(): void
     {
         $objectManager = new ObjectManager($this);
