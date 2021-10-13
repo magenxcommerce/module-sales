@@ -14,7 +14,7 @@
             <stories value="Add Products to Order from Shopping Cart"/>
             <title value="Add simple product to order from shopping cart test"/>
             <description value="Add simple product to order from shopping cart"/>
-            <severity value="BLOCKER"/>
+            <severity value="CRITICAL"/>
             <testCaseId value="MC-16007"/>
             <group value="sales"/>
             <group value="mtf_migrated"/>
@@ -28,7 +28,7 @@
         </before>
         <after>
             <!-- Admin log out -->
-            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+            <actionGroup ref="logout" stepKey="logout"/>
 
             <!-- Customer log out -->
             <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="customerLogout"/>
@@ -46,13 +46,12 @@
         </actionGroup>
 
         <!-- Add product to cart -->
-        <actionGroup ref="StorefrontAddSimpleProductWithQtyActionGroup" stepKey="addSimpleProductToCart">
+        <actionGroup ref="AddSimpleProductToCart" stepKey="addProductToCart">
             <argument name="product" value="$$createProduct$$"/>
-            <argument name="quantity" value="2"/>
         </actionGroup>
 
         <!-- Login as admin -->
-        <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        <actionGroup ref="LoginAsAdmin" stepKey="loginAsAdmin"/>
 
         <!-- Search and open customer -->
         <actionGroup ref="AdminFilterCustomerByEmail" stepKey="filterCreatedCustomer">
@@ -65,7 +64,6 @@
         <click selector="{{AdminCustomerMainActionsSection.createOrderBtn}}" stepKey="clickCreateOrder"/>
 
         <!-- Check product in customer's activities in shopping cart section -->
-        <see selector="{{AdminCreateOrderShoppingCartSection.shoppingCartBlock}}" userInput="Shopping Cart (2)" stepKey="seeCorrectNumberInCart"/>
         <see selector="{{AdminCustomerActivitiesShoppingCartSection.productName}}" userInput="$$createProduct.name$$" stepKey="seeProductNameInShoppingCartSection"/>
         <see selector="{{AdminCustomerActivitiesShoppingCartSection.productPrice}}" userInput="$$createProduct.price$$" stepKey="seeProductPriceInShoppingCartSection"/>
 
@@ -77,6 +75,6 @@
         <!-- Assert product in items ordered grid -->
         <see selector="{{AdminCustomerCreateNewOrderSection.productName}}" userInput="$$createProduct.name$$" stepKey="seeProductName"/>
         <see selector="{{AdminCustomerCreateNewOrderSection.productPrice}}" userInput="$$createProduct.price$$" stepKey="seeProductPrice"/>
-        <seeInField selector="{{AdminCustomerCreateNewOrderSection.productQty}}" userInput="2" stepKey="seeProductQty"/>
+        <seeInField selector="{{AdminCustomerCreateNewOrderSection.productQty}}" userInput="{{ApiSimpleSingleQty.quantity}}" stepKey="seeProductQty"/>
     </test>
 </tests>
