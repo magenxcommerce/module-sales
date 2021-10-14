@@ -10,7 +10,6 @@
 namespace Magento\Sales\Block\Order\Creditmemo;
 
 /**
- * Sales order creditmemo items block
  * @api
  * @since 100.0.2
  */

@@ -4,6 +4,8 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+declare(strict_types=1);
+
 namespace Magento\Sales\Test\Unit\ViewModel\CreditMemo\Create;
 
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
@@ -13,8 +15,13 @@ use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Item as OrderItem;
 use Magento\Sales\ViewModel\CreditMemo\Create\ItemsToRender;
 use PHPUnit\Framework\MockObject\MockObject;
+use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
+use PHPUnit\Framework\TestCase;
 
-class ItemsToRenderTest extends \PHPUnit\Framework\TestCase
+/**
+ * Test creditmemo items to render
+ */
+class ItemsToRenderTest extends TestCase
 {
     /**
      * @var ItemsToRender
@@ -56,38 +63,45 @@ class ItemsToRenderTest extends \PHPUnit\Framework\TestCase
      */
     private $orderItemParent;
 
+    /**
+     * @inheritdoc
+     */
     protected function setUp(): void
     {
         $this->converter = $this->getMockBuilder(ConvertOrder::class)
-            ->setMethods(['itemToCreditmemoItem'])
+            ->onlyMethods(['itemToCreditmemoItem'])
             ->disableOriginalConstructor()
             ->getMock();
         $this->blockItems = $this->getMockBuilder(BlockItems::class)
-            ->setMethods(['getCreditmemo'])
+            ->onlyMethods(['getCreditmemo'])
             ->disableOriginalConstructor()
             ->getMock();
         $this->creditmemo = $this->getMockBuilder(Creditmemo::class)
-            ->setMethods(['getAllItems', 'getId', 'getStoreId'])
+            ->onlyMethods(['getAllItems', 'getId', 'getStoreId'])
             ->disableOriginalConstructor()
             ->getMock();
         $this->creditmemoItem = $this->getMockBuilder(CreditmemoItem::class)
-            ->setMethods(['getOrderItem'])
+            ->onlyMethods(['getOrderItem', 'getCreditMemo'])
             ->disableOriginalConstructor()
             ->getMock();
         $this->creditmemoItemParent = $this->getMockBuilder(CreditmemoItem::class)
-            ->setMethods(['getItemId', 'setCreditmemo', 'setParentId', 'setStoreId'])
+            ->onlyMethods(['setCreditmemo', 'setParentId'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->creditmemoItemParent = $this->getMockBuilder(CreditmemoItem::class)
+            ->addMethods(['getItemId', 'setStoreId'])
             ->disableOriginalConstructor()
             ->getMock();
         $this->orderItem = $this->getMockBuilder(OrderItem::class)
-            ->setMethods(['getParentItem'])
+            ->onlyMethods(['getParentItem'])
             ->disableOriginalConstructor()
             ->getMock();
         $this->orderItemParent = $this->getMockBuilder(OrderItem::class)
-            ->setMethods(['getItemId'])
+            ->onlyMethods(['getItemId'])
             ->disableOriginalConstructor()
             ->getMock();
-        /** @var \Magento\Framework\TestFramework\Unit\Helper\ObjectManager  */
-        $objectManager = new \Magento\Framework\TestFramework\Unit\Helper\ObjectManager($this);
+        /** @var ObjectManager  */
+        $objectManager = new ObjectManager($this);
         $this->itemsToRender = $objectManager->getObject(
             ItemsToRender::class,
             [
@@ -97,41 +111,29 @@ class ItemsToRenderTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testGetItems()
+    /**
+     * Test get items
+     */
+    public function testGetItems(): void
     {
-        $this->blockItems->expects($this->any())
-            ->method('getCreditmemo')
+        $this->blockItems->method('getCreditmemo')
             ->willReturn($this->creditmemo);
-        $this->creditmemo->expects($this->any())
-            ->method('getAllItems')
+        $this->creditmemo->method('getAllItems')
             ->willReturn([$this->creditmemoItem]);
-        $this->creditmemo->expects($this->any())
-            ->method('getId')
+        $this->creditmemo->method('getId')
             ->willReturn(1);
-        $this->creditmemo->expects($this->any())
-            ->method('getStoreId')
-            ->willReturn(1);
-        $this->creditmemoItem->expects($this->any())
-            ->method('getOrderItem')
-            ->willReturn($this->orderItem);
-        $this->orderItem->expects($this->any())
-            ->method('getParentItem')
-            ->willReturn($this->orderItemParent);
-        $this->orderItemParent->expects($this->any())
-            ->method('getItemId')
-            ->willReturn(1);
-        $this->converter->expects($this->any())
-            ->method('itemToCreditmemoItem')
-            ->willReturn($this->creditmemoItemParent);
-        $this->creditmemoItemParent->expects($this->any())
-            ->method('setCreditmemo')
+        $this->creditmemoItem->method('getCreditmemo')
             ->willReturn($this->creditmemo);
-        $this->creditmemoItemParent->expects($this->any())
-            ->method('setParentId')
+        $this->creditmemo->method('getStoreId')
             ->willReturn(1);
-        $this->creditmemoItemParent->expects($this->any())
-            ->method('setStoreId')
+        $this->creditmemoItem->method('getOrderItem')
+            ->willReturn($this->orderItem);
+        $this->orderItem->method('getParentItem')
+            ->willReturn($this->orderItemParent);
+        $this->orderItemParent->method('getItemId')
             ->willReturn(1);
+        $this->converter->method('itemToCreditmemoItem')
+            ->willReturn($this->creditmemoItemParent);
 
         $this->assertEquals(
             [$this->creditmemoItemParent, $this->creditmemoItem],

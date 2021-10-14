@@ -3,6 +3,8 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+declare(strict_types=1);
+
 namespace Magento\Sales\Test\Unit\Model\Order\Shipment\Sender;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -22,6 +24,7 @@ use Magento\Sales\Model\Order\Email\SenderBuilderFactory;
 use Magento\Sales\Model\Order\Shipment\Sender\EmailSender;
 use Magento\Sales\Model\ResourceModel\Order\Shipment;
 use Magento\Store\Model\Store;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -33,88 +36,92 @@ use Psr\Log\LoggerInterface;
  */
 class EmailSenderTest extends TestCase
 {
+    private const SHIPMENT_ID = 1;
+
+    private const ORDER_ID = 1;
+
     /**
      * @var EmailSender
      */
     private $subject;
 
     /**
-     * @var Order|\PHPUnit\Framework\MockObject\MockObject
+     * @var Order|MockObject
      */
     private $orderMock;
 
     /**
-     * @var Store|\PHPUnit\Framework\MockObject\MockObject
+     * @var Store|MockObject
      */
     private $storeMock;
 
     /**
-     * @var Sender|\PHPUnit\Framework\MockObject\MockObject
+     * @var Sender|MockObject
      */
     private $senderMock;
 
     /**
-     * @var LoggerInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var LoggerInterface|MockObject
      */
     private $loggerMock;
 
     /**
-     * @var ShipmentInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var ShipmentInterface|MockObject
      */
     private $shipmentMock;
 
     /**
-     * @var ShipmentCommentCreationInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var ShipmentCommentCreationInterface|MockObject
      */
     private $commentMock;
 
     /**
-     * @var Address|\PHPUnit\Framework\MockObject\MockObject
+     * @var Address|MockObject
      */
     private $addressMock;
 
     /**
-     * @var ScopeConfigInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var ScopeConfigInterface|MockObject
      */
     private $globalConfigMock;
 
     /**
-     * @var ManagerInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @var ManagerInterface|MockObject
      */
     private $eventManagerMock;
 
     /**
-     * @var Info|\PHPUnit\Framework\MockObject\MockObject
+     * @var Info|MockObject
      */
     private $paymentInfoMock;
 
     /**
-     * @var Data|\PHPUnit\Framework\MockObject\MockObject
+     * @var Data|MockObject
      */
     private $paymentHelperMock;
 
     /**
-     * @var Shipment|\PHPUnit\Framework\MockObject\MockObject
+     * @var Shipment|MockObject
      */
     private $shipmentResourceMock;
 
     /**
-     * @var Renderer|\PHPUnit\Framework\MockObject\MockObject
+     * @var Renderer|MockObject
      */
     private $addressRendererMock;
 
     /**
-     * @var Template|\PHPUnit\Framework\MockObject\MockObject
+     * @var Template|MockObject
      */
     private $templateContainerMock;
 
     /**
-     * @var ShipmentIdentity|\PHPUnit\Framework\MockObject\MockObject
+     * @var ShipmentIdentity|MockObject
      */
     private $identityContainerMock;
 
     /**
-     * @var SenderBuilderFactory|\PHPUnit\Framework\MockObject\MockObject
+     * @var SenderBuilderFactory|MockObject
      */
     private $senderBuilderFactoryMock;
 
@@ -150,7 +157,7 @@ class EmailSenderTest extends TestCase
 
         $this->shipmentMock = $this->getMockBuilder(Order\Shipment::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getId', 'setSendEmail', 'setEmailSent'])
+            ->setMethods(['setSendEmail', 'setEmailSent', 'getId'])
             ->getMock();
 
         $this->commentMock = $this->getMockBuilder(ShipmentCommentCreationInterface::class)
@@ -171,6 +178,9 @@ class EmailSenderTest extends TestCase
         $this->orderMock->expects($this->any())
             ->method('getShippingAddress')
             ->willReturn($this->addressMock);
+        $this->orderMock->expects($this->any())
+            ->method('getId')
+            ->willReturn(self::ORDER_ID);
 
         $this->globalConfigMock = $this->getMockBuilder(ScopeConfigInterface::class)
             ->disableOriginalConstructor()
@@ -217,8 +227,8 @@ class EmailSenderTest extends TestCase
         $this->identityContainerMock = $this->getMockBuilder(
             ShipmentIdentity::class
         )
-        ->disableOriginalConstructor()
-        ->getMock();
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->identityContainerMock->expects($this->any())
             ->method('getStore')
@@ -227,9 +237,9 @@ class EmailSenderTest extends TestCase
         $this->senderBuilderFactoryMock = $this->getMockBuilder(
             SenderBuilderFactory::class
         )
-        ->disableOriginalConstructor()
-        ->setMethods(['create'])
-        ->getMock();
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
 
         $this->subject = new EmailSender(
             $this->templateContainerMock,
@@ -286,7 +296,7 @@ class EmailSenderTest extends TestCase
 
         $this->shipmentMock->expects($this->any())
             ->method('getId')
-            ->willReturn($orderData['shipment_id']);
+            ->willReturn(self::SHIPMENT_ID);
         $this->shipmentMock->expects($this->once())
             ->method('setSendEmail')
             ->with($emailSendingResult);
@@ -294,9 +304,9 @@ class EmailSenderTest extends TestCase
         if (!$configValue || $forceSyncMode) {
             $transport = [
                 'order' => $this->orderMock,
-                'order_id' => $orderData['order_id'],
+                'order_id' => self::ORDER_ID,
                 'shipment' => $this->shipmentMock,
-                'shipment_id' => $orderData['shipment_id'],
+                'shipment_id' => self::SHIPMENT_ID,
                 'comment' => $isComment ? 'Comment text' : '',
                 'billing' => $this->addressMock,
                 'payment_html' => 'Payment Info Block',
@@ -308,7 +318,7 @@ class EmailSenderTest extends TestCase
                     'is_not_virtual' => $orderData['is_not_virtual'],
                     'email_customer_note' => $orderData['email_customer_note'],
                     'frontend_status_label' => $orderData['frontend_status_label']
-                ]
+                ],
             ];
             $transport = new DataObject($transport);
 

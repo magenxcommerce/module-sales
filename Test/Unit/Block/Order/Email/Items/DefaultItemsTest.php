@@ -3,6 +3,7 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+declare(strict_types=1);
 
 namespace Magento\Sales\Test\Unit\Block\Order\Email\Items;
 
@@ -10,25 +11,26 @@ use Magento\Backend\Block\Template;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\TestFramework\Unit\Helper\ObjectManager;
 use Magento\Framework\View\Layout;
-use Magento\Quote\Model\Quote\Item  as QuoteItem;
+use Magento\Quote\Model\Quote\Item as QuoteItem;
 use Magento\Sales\Block\Order\Email\Items\DefaultItems;
-use Magento\Sales\Model\Order\Item;
+use Magento\Sales\Model\Order\Item as OrderItem;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class DefaultItemsTest extends TestCase
 {
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\Magento\Sales\Block\Order\Email\Items\DefaultItem
+     * @var MockObject|DefaultItems
      */
     protected $block;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|Template
+     * @var MockObject|Template
      */
     protected $priceRenderBlock;
 
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|Layout
+     * @var MockObject|Layout
      */
     protected $layoutMock;
 
@@ -37,10 +39,14 @@ class DefaultItemsTest extends TestCase
      */
     protected $objectManager;
 
-    /** @var \PHPUnit\Framework\MockObject\MockObject|Item */
+    /**
+     * @var MockObject|OrderItem
+     */
     protected $itemMock;
 
-    /** @var \PHPUnit\Framework\MockObject\MockObject|QuoteItem */
+    /**
+     * @var MockObject|QuoteItem
+     */
     protected $quoteItemMock;
 
     /**
@@ -57,12 +63,11 @@ class DefaultItemsTest extends TestCase
 
         $this->priceRenderBlock = $this->getMockBuilder(Template::class)
             ->disableOriginalConstructor()
-            ->setMethods(['setItem','toHtml'])
+            ->setMethods(['setItem', 'toHtml'])
             ->getMock();
 
-        $this->itemMock = $this->getMockBuilder(Item::class)
+        $this->itemMock = $this->getMockBuilder(OrderItem::class)
             ->disableOriginalConstructor()
-            ->setMethods(['__wakeup','setRowTotal', 'setBaseRowTotal', 'getPrice', 'getBasePrice'])
             ->getMock();
 
         $this->quoteItemMock = $this->getMockBuilder(QuoteItem::class)
