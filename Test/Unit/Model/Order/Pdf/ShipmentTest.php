@@ -5,14 +5,12 @@
  */
 namespace Magento\Sales\Test\Unit\Model\Order\Pdf;
 
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\MediaStorage\Helper\File\Storage\Database;
+use Magento\Sales\Model\Order\Shipment;
 use Magento\Sales\Model\Order;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Address\Renderer;
-use Magento\Sales\Model\Order\Shipment;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
 
 /**
  * Class ShipmentTest
@@ -21,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class ShipmentTest extends TestCase
+class ShipmentTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var \Magento\Sales\Model\Order\Pdf\Invoice
@@ -29,32 +27,32 @@ class ShipmentTest extends TestCase
     protected $_model;
 
     /**
-     * @var \Magento\Sales\Model\Order\Pdf\Config|MockObject
+     * @var \Magento\Sales\Model\Order\Pdf\Config|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $_pdfConfigMock;
 
     /**
-     * @var Database|MockObject
+     * @var Database|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $databaseMock;
 
     /**
-     * @var ScopeConfigInterface|MockObject
+     * @var ScopeConfigInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $scopeConfigMock;
 
     /**
-     * @var \Magento\Framework\Filesystem\Directory\Write|MockObject
+     * @var \Magento\Framework\Filesystem\Directory\Write|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $directoryMock;
 
     /**
-     * @var Renderer|MockObject
+     * @var Renderer|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $addressRendererMock;
 
     /**
-     * @var \Magento\Payment\Helper\Data|MockObject
+     * @var \Magento\Payment\Helper\Data|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $paymentDataMock;
 
@@ -63,7 +61,7 @@ class ShipmentTest extends TestCase
      */
     private $appEmulation;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->_pdfConfigMock = $this->getMockBuilder(\Magento\Sales\Model\Order\Pdf\Config::class)
             ->disableOriginalConstructor()

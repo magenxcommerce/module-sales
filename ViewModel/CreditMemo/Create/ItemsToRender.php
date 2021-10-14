@@ -12,7 +12,6 @@ use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Sales\Block\Adminhtml\Order\Creditmemo\Create\Items;
 use Magento\Sales\Model\Convert\OrderFactory;
 use Magento\Sales\Model\Convert\Order as ConvertOrder;
-use Magento\Sales\Model\Order\Creditmemo\Item;
 
 /**
  * View model to return creditmemo items for rendering
@@ -44,17 +43,14 @@ class ItemsToRender implements ArgumentInterface
     /**
      * Return creditmemo items for rendering and make sure all its parents are included
      *
-     * @return Item[]
+     * @return \Magento\Sales\Model\Order\Creditmemo\Item[]
      */
     public function getItems(): array
     {
-        $creditMemo = null;
+        $creditMemo = $this->items->getCreditmemo();
         $parents = [];
         $items = [];
-        foreach ($this->items->getCreditmemo()->getAllItems() as $item) {
-            if (!$creditMemo) {
-                $creditMemo = $item->getCreditmemo();
-            }
+        foreach ($creditMemo->getAllItems() as $item) {
             $orderItem = $item->getOrderItem();
             if ($orderItem->getChildrenItems()) {
                 $parents[] = $orderItem->getItemId();
